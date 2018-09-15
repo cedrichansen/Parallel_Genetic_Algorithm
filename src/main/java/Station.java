@@ -12,7 +12,7 @@ public class Station {
 
 
 
-    private double localFitness;
+    private double localFitness = 0;
 
 
     public Station(int height, int row, int column){
@@ -23,7 +23,7 @@ public class Station {
     }
 
     public String toString() {
-        return "[" + row + "] " + "[" + column + "] + height: " + height;
+        return "[" + row + "] " + "[" + column + "] + height: " + height + " LocalFitness: " + localFitness;
     }
 
     public void setLocalFitness(double localFitness){

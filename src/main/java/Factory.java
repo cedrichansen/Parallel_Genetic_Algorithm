@@ -1,3 +1,5 @@
+import sun.jvm.hotspot.jdi.ArrayReferenceImpl;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -12,12 +14,13 @@ public class Factory {
     private int rows, columns;
     private float fitness;
     private int totalSpots;
-    private int factoryId;
+    private int id;
     private ArrayList<Station> listOfStations;
     private ArrayList<int[]> swaps;
     private Random random;
     private boolean selected;
     private double factoryFitness;
+    private Station bestFitness;
 
     public Factory(int rows, int columns) {
         this.rows = rows;
@@ -39,7 +42,7 @@ public class Factory {
         Station[][] stations = new Station[rows][columns];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                Station s = new Station(random.nextInt(2* totalSpots), i, j);
+                Station s = new Station(random.nextInt((int) (2 * totalSpots)), i, j);
                 stations[i][j] = s;
                 listOfStations.add(s);
             }
@@ -48,18 +51,17 @@ public class Factory {
     }
 
 
-    public void assignNeighbours(){
+    public void assignNeighbours() {
 
         //get the surrounding Stations and assign to each items neighbours list
         // makes calculating fitness easier
 
-        for (int i = 0; i<rows; i++) {
-            for (int j=0; j<columns; j++) {
-
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
                 for (int a = -1; a < 2; a++) {
-                    for (int b = -1; b< 2; b++){
-                        if (validSpot(i+a,j+b) && !(b == 0 && a==0)) {
-                            stations[i][j].addNeighbour(stations[i+a][j+b]);
+                    for (int b = -1; b < 2; b++) {
+                        if (validSpot(i + a, j + b) && !(b == 0 && a == 0)) {
+                            stations[i][j].addNeighbour(stations[i + a][j + b]);
                         }
                     }
                 }
@@ -69,25 +71,34 @@ public class Factory {
 
     //function checks to see if a specific index is out of bounds. Returns true if index is within array bounds
     public boolean validSpot(int i, int j) {
-         return (i >=0 && i<rows && j>=0 && j<columns);
+        return (i >= 0 && i < rows && j >= 0 && j < columns);
     }
 
-    public void calculateLocalFitness(){
-        for (int i = 0; i<rows; i++) {
-            for (int j = 0; j<columns; j++) {
+    public void calculateLocalFitness() {
+        bestFitness = stations[0][0];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
                 int sum = 0;
                 for (Station s : stations[i][j].getNeighbours()) {
                     sum += Math.abs(stations[i][j].getHeight() - s.getHeight());
                 }
-                stations[i][j].setLocalFitness(1000/(double)sum);
+                stations[i][j].setLocalFitness(1000 / (double) sum);
+                if (stations[i][j].getLocalFitness() > bestFitness.getLocalFitness()) {
+                    bestFitness = stations[i][j];
+                }
             }
         }
     }
 
-    public void calculateFactoryFitness(){
+
+    /* calculate the factory fitness
+     * which is equal to the sum of all station localFitnesses3
+     */
+
+    public void calculateFactoryFitness() {
         double factoryFitness = 0;
-        for (int i=0; i<rows; i++) {
-            for (int j=0; j<columns; j++){
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
                 factoryFitness += stations[i][j].getLocalFitness();
             }
         }
@@ -95,6 +106,19 @@ public class Factory {
     }
 
 
+    public Station[][] getFactorySection(int startRow, int startColumn, int endRow, int endColumn) {
+        Station[][] subsection = new Station[(endRow+1) - startRow][(endColumn+1) - startColumn];
+
+        if ((startColumn > -1) && (startRow > -1) && (endRow < rows) && (endColumn < columns) && (startColumn<endColumn) && (startRow<endRow)) {
+            for (int i = startRow; i <= endRow; i++) {
+                for (int j = startColumn; j <= endColumn; j++) {
+                    subsection[i - startRow][j - startColumn] = stations[i][j];
+                }
+            }
+        }
+
+        return subsection;
+    }
 
 
     //only configured to work properly for 10x10 factory
@@ -105,6 +129,8 @@ public class Factory {
                 if (j != columns - 1) {
                     if (stations[i][j].getHeight() < 10) {
                         rowString += stations[i][j].getHeight() + "   | ";
+                    } else if (stations[i][j].getHeight() >= 100) {
+                        rowString += stations[i][j].getHeight() + " | ";
                     } else {
                         rowString += stations[i][j].getHeight() + "  | ";
                     }
@@ -122,12 +148,16 @@ public class Factory {
     }
 
 
-    public void printLocalFitnesses(){
+    public void printLocalFitnesses() {
         for (int i = 0; i < rows; i++) {
             String rowString = "";
             for (int j = 0; j < columns; j++) {
                 if (j != columns - 1) {
-                    rowString += stations[i][j].getLocalFitnessToPrint() + "  | ";
+                    if (stations[i][j].getLocalFitness() < 10) {
+                        rowString += stations[i][j].getLocalFitnessToPrint() + " | ";
+                    } else {
+                        rowString += stations[i][j].getLocalFitnessToPrint() + "| ";
+                    }
                 } else {
                     rowString += stations[i][j].getLocalFitnessToPrint();
                 }
@@ -135,7 +165,7 @@ public class Factory {
             }
             System.out.println(rowString);
             if (i != rows - 1) {
-                System.out.println("------------------------------------------------------------------------");
+                System.out.println("----------------------------------------------------------");
             }
         }
     }
@@ -185,12 +215,12 @@ public class Factory {
         this.totalSpots = totalSpots;
     }
 
-    public int getFactoryId() {
-        return factoryId;
+    public int getId() {
+        return id;
     }
 
     public void setFactoryId(int factoryId) {
-        this.factoryId = factoryId;
+        this.id = factoryId;
     }
 
     public ArrayList<Station> getListOfStations() {
