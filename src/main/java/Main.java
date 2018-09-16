@@ -11,7 +11,7 @@ public class Main {
     public static void runAlgorithm(){
         Generation a = new Generation();
 
-        for (int i = 0; i<10; i++) {
+        for (int i = 0; i<1000; i++) {
             System.out.println("Generation " + i + "\nBestFitnesses:");
             for (int j = 0; j<a.getBestFactories().length; j++){
                 System.out.println(j+ ": " + a.getBestFactories()[j].getFactoryFitness());

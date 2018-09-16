@@ -66,13 +66,14 @@ public class Factory {
     *  gives the rest of the genes
     */
     public Factory(Station [][] subsection, Factory secondParent, int mutationRate) {
-        this.rows = rows;
-        this.columns = columns;
+        this.rows = secondParent.getRows();
+        this.columns = secondParent.getColumns();
         totalSpots = rows * columns;
         random = new Random();
         factoryFitness = 0;
         stations = secondParent.stations;
         insertSubsection(subsection);
+        listOfStations = new ArrayList<Station>();
         mutate(mutationRate);
         //add a function whose mutation is to add the best part of the second parent into the new factory
         assignNeighbours();
