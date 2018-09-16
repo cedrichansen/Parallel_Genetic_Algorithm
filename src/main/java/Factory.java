@@ -1,13 +1,8 @@
-import sun.jvm.hotspot.jdi.ArrayReferenceImpl;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Factory {
-
-    // to do
-    // write a function that gets all the neighbouring stations
-    // for fitness function, do the least sum difference of neighbours
 
     private final double mutationRate = 0.1;
     private Station[][] stations;
@@ -22,6 +17,9 @@ public class Factory {
     private double factoryFitness;
     private Station bestFitness;
 
+    /*
+     * this constructor is used to generate the first generation of factories
+     */
     public Factory(int rows, int columns) {
         this.rows = rows;
         this.columns = columns;
@@ -31,6 +29,7 @@ public class Factory {
         listOfStations = new ArrayList<Station>();
         swaps = new ArrayList<int[]>();
         selected = false;
+        stations = new Station[rows][columns];
         stations = generateStations(rows, columns);
         assignNeighbours();
         calculateLocalFitness();
@@ -38,7 +37,9 @@ public class Factory {
 
     }
 
-
+    /*
+     * this constructor is used for a factory which is the offspring of another
+     */
     public Factory(int rows, int columns, Station [][] subsection) {
         this.rows = rows;
         this.columns = columns;
@@ -48,6 +49,7 @@ public class Factory {
         listOfStations = new ArrayList<Station>();
         swaps = new ArrayList<int[]>();
         selected = false;
+        stations = new Station[rows][columns];
         insertSubsection(subsection);
         stations = generateStations(rows, columns);
         assignNeighbours();
@@ -55,8 +57,11 @@ public class Factory {
         calculateFactoryFitness();
     }
 
+    /*
+     * Fills in the empty spots in the factory with new stations of random height
+     */
     public Station[][] generateStations(int rows, int columns) {
-        Station[][] stations = new Station[rows][columns];
+        //Station[][] stations = new Station[rows][columns];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 if (stations[i][j] == null) {
@@ -69,12 +74,12 @@ public class Factory {
         return stations;
     }
 
+        /*
+         * get the surrounding Stations and assign to each items neighbours list
+         * makes calculating fitness easier
+         */
 
     public void assignNeighbours() {
-
-        //get the surrounding Stations and assign to each items neighbours list
-        // makes calculating fitness easier
-
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 stations[i][j].setNeighbours(new ArrayList<Station>());
@@ -89,11 +94,30 @@ public class Factory {
         }
     }
 
-    //function checks to see if a specific index is out of bounds. Returns true if index is within array bounds
+
+    public int[] generateCrossoverPoint(){
+        int[] point = new int [2];
+
+        int rowSplit = random.nextInt(rows);
+        int columnSplit = random.nextInt(columns);
+
+        return point;
+
+    }
+
+    /*
+     * function checks to see if a specific index is out of bounds. Returns true if index is within array bounds
+     */
     public boolean validSpot(int i, int j) {
         return (i >= 0 && i < rows && j >= 0 && j < columns);
     }
 
+    /*
+     * calculate fitness of each station by taking the inverse of the sum of differences between each station, and its
+     * neighbours
+     *
+     * exclude calculating the edges and corners because their values are always skewed to be low
+     */
     public void calculateLocalFitness() {
         bestFitness = stations[1][1];
         for (int i = 1; i < rows-1; i++) {
@@ -112,7 +136,7 @@ public class Factory {
 
 
     /* calculate the factory fitness
-     * which is equal to the sum of all station localFitnesses3
+     * which is equal to the sum of all station localFitnesses
      */
 
     public void calculateFactoryFitness() {
@@ -125,6 +149,10 @@ public class Factory {
         this.factoryFitness = factoryFitness;
     }
 
+
+    /*
+     * returns a sub section of the factory
+     */
 
     public Station[][] getFactorySection(int startRow, int startColumn, int endRow, int endColumn) {
         Station[][] subsection = new Station[(endRow+1) - startRow][(endColumn+1) - startColumn];
@@ -141,13 +169,18 @@ public class Factory {
     }
 
 
+    /*
+     * This function is used to insert a factory subsection (obtained from getFactorySection() ) from another factory
+     *  into the another (presumably new) factory
+     */
+
     public void insertSubsection(Station[][] subsection){
         Station topLeftCorner = subsection[0][0];
         Station bottomRightCorner = subsection[subsection.length-1][subsection.length-1];
-        for (int i = 0; i<topLeftCorner.getRow()-bottomRightCorner.getRow();i++) {
-            for (int j = 0; j<topLeftCorner.getColumn()-bottomRightCorner.getColumn(); j++) {
-                Station temp = subsection[i+topLeftCorner.getRow()][j+bottomRightCorner.getColumn()];
-                stations[i][j]= temp;
+        for (int i = 0; i<=bottomRightCorner.getRow()-topLeftCorner.getRow();i++) {
+            for (int j = 0; j<=bottomRightCorner.getColumn()-topLeftCorner.getColumn(); j++) {
+                Station temp = subsection[i][j];
+                stations[i+topLeftCorner.getRow()][j+topLeftCorner.getColumn()]= temp;
             }
         }
     }
@@ -179,7 +212,7 @@ public class Factory {
         }
     }
 
-
+    // prints fitnesses of
     public void printLocalFitnesses() {
         for (int i = 0; i < rows; i++) {
             String rowString = "";
