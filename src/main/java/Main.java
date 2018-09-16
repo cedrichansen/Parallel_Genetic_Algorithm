@@ -2,9 +2,27 @@ public class Main {
 
     public static void main (String [] args) {
 
-        Generation ga = new Generation();
-        Generation secondGen = ga.generateOffSpring();
-        System.out.println();
+        runAlgorithm();
+        System.out.println("Done");
+
+    }
+
+
+    public static void runAlgorithm(){
+        Generation a = new Generation();
+
+        for (int i = 0; i<10; i++) {
+            System.out.println("Generation " + i + "\nBestFitnesses:");
+            for (int j = 0; j<a.getBestFactories().length; j++){
+                System.out.println(j+ ": " + a.getBestFactories()[j].getFactoryFitness());
+            }
+            System.out.println("\n\n\nGeneration View\n\n");
+            a.printGeneration();
+            a= a.generateOffSpring();
+            System.out.println("\n\n\n--------------------------");
+        }
+
+
 
     }
 

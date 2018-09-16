@@ -1,8 +1,11 @@
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Factory {
+
+    private DecimalFormat df2 = new DecimalFormat(".#");
 
     private Station[][] stations;
     private int rows, columns;
@@ -71,6 +74,7 @@ public class Factory {
         stations = secondParent.stations;
         insertSubsection(subsection);
         mutate(mutationRate);
+        //add a function whose mutation is to add the best part of the second parent into the new factory
         assignNeighbours();
         calculateLocalFitness();
         calculateFactoryFitness();
@@ -278,6 +282,10 @@ public class Factory {
             return true;
         }
         return false;
+    }
+
+    public String toString() {
+        return df2.format(this.factoryFitness);
     }
 
 
