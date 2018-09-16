@@ -19,7 +19,6 @@ public class Station {
         this.height = height;
         this.row = row;
         this.column = column;
-        neighbours = new ArrayList<Station>();
     }
 
     public String toString() {
@@ -44,6 +43,9 @@ public class Station {
 
     public ArrayList<Station> getNeighbours() {
         return neighbours;
+    }
+    public void setNeighbours(ArrayList<Station> neighbours){
+        this.neighbours = neighbours;
     }
 
     public int getHeight() {

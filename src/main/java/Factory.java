@@ -9,7 +9,7 @@ public class Factory {
     // write a function that gets all the neighbouring stations
     // for fitness function, do the least sum difference of neighbours
 
-
+    private final double mutationRate = 0.1;
     private Station[][] stations;
     private int rows, columns;
     private float fitness;
@@ -38,13 +38,32 @@ public class Factory {
 
     }
 
+
+    public Factory(int rows, int columns, Station [][] subsection) {
+        this.rows = rows;
+        this.columns = columns;
+        totalSpots = rows * columns;
+        random = new Random();
+        factoryFitness = 0;
+        listOfStations = new ArrayList<Station>();
+        swaps = new ArrayList<int[]>();
+        selected = false;
+        insertSubsection(subsection);
+        stations = generateStations(rows, columns);
+        assignNeighbours();
+        calculateLocalFitness();
+        calculateFactoryFitness();
+    }
+
     public Station[][] generateStations(int rows, int columns) {
         Station[][] stations = new Station[rows][columns];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                Station s = new Station(random.nextInt((int) (2 * totalSpots)), i, j);
-                stations[i][j] = s;
-                listOfStations.add(s);
+                if (stations[i][j] == null) {
+                    Station s = new Station(random.nextInt((int) (2 * totalSpots)), i, j);
+                    stations[i][j] = s;
+                    listOfStations.add(s);
+                }
             }
         }
         return stations;
@@ -58,6 +77,7 @@ public class Factory {
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
+                stations[i][j].setNeighbours(new ArrayList<Station>());
                 for (int a = -1; a < 2; a++) {
                     for (int b = -1; b < 2; b++) {
                         if (validSpot(i + a, j + b) && !(b == 0 && a == 0)) {
@@ -75,9 +95,9 @@ public class Factory {
     }
 
     public void calculateLocalFitness() {
-        bestFitness = stations[0][0];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
+        bestFitness = stations[1][1];
+        for (int i = 1; i < rows-1; i++) {
+            for (int j = 1; j < columns-1; j++) {
                 int sum = 0;
                 for (Station s : stations[i][j].getNeighbours()) {
                     sum += Math.abs(stations[i][j].getHeight() - s.getHeight());
@@ -121,6 +141,18 @@ public class Factory {
     }
 
 
+    public void insertSubsection(Station[][] subsection){
+        Station topLeftCorner = subsection[0][0];
+        Station bottomRightCorner = subsection[subsection.length-1][subsection.length-1];
+        for (int i = 0; i<topLeftCorner.getRow()-bottomRightCorner.getRow();i++) {
+            for (int j = 0; j<topLeftCorner.getColumn()-bottomRightCorner.getColumn(); j++) {
+                Station temp = subsection[i+topLeftCorner.getRow()][j+bottomRightCorner.getColumn()];
+                stations[i][j]= temp;
+            }
+        }
+    }
+
+
     //only configured to work properly for 10x10 factory
     public void printFactoryHeight() {
         for (int i = 0; i < rows; i++) {
@@ -153,9 +185,12 @@ public class Factory {
             String rowString = "";
             for (int j = 0; j < columns; j++) {
                 if (j != columns - 1) {
-                    if (stations[i][j].getLocalFitness() < 10) {
+                    if (stations[i][j].getLocalFitness() < 1) {
+                        rowString += stations[i][j].getLocalFitnessToPrint() + "  | ";
+                    }else if (stations[i][j].getLocalFitness() < 10) {
                         rowString += stations[i][j].getLocalFitnessToPrint() + " | ";
-                    } else {
+                    }
+                     else {
                         rowString += stations[i][j].getLocalFitnessToPrint() + "| ";
                     }
                 } else {
@@ -170,6 +205,13 @@ public class Factory {
         }
     }
 
+
+
+
+
+    public Station getBestFitness() {
+        return bestFitness;
+    }
 
     public double getFactoryFitness() {
         return factoryFitness;
