@@ -10,21 +10,25 @@ public class Main {
 
     public static void runAlgorithm(){
         Generation a = new Generation();
-        a.getBestFactories()[0].printLocalFitnesses();
+        //a.getBestFactories()[0].printLocalFitnesses();
 
-        for (int i = 0; i<5000; i=i+100) {
-            System.out.println("Generation " + i + "\nBestFitnesses:");
-            for (int j = 0; j<a.getBestFactories().length; j++){
-                System.out.println(j+ ": " + a.getBestFactories()[j].getFactoryFitness());
+        for (int i = 0; i<5000; i++) {
+            if (i%100 == 0) {
+                System.out.println("Generation " + i + "\nBestFitnesses:");
+                for (int j = 0; j < a.getBestFactories().length; j++) {
+                    System.out.println(j + ": " + a.getBestFactories()[j].getFactoryFitness());
+                }
+                System.out.println("\nAverage Fitness: " + a.averageFitness());
+                System.out.println("\n\nGeneration View\n\n");
+                a.printGeneration();
+                System.out.println("\n\n\n--------------------------");
             }
-            System.out.println("\nAverage Fitness: " + a.averageFitness());
-            System.out.println("\n\nGeneration View\n\n");
-            a.printGeneration();
             a= a.generateOffSpring();
-            System.out.println("\n\n\n--------------------------");
+
+
         }
 
-        a.getBestFactories()[0].printLocalFitnesses();
+        //a.getBestFactories()[0].printLocalFitnesses();
 
     }
 

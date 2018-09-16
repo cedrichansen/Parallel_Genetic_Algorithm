@@ -5,6 +5,16 @@ import java.util.Random;
 
 public class Generation {
 
+    /*
+    TO DO:
+
+    mutate factories in the second constructor - look into this
+    keep 8/32 alive for next gen
+    look into splitting the parents in half
+
+
+    */
+
     private Factory [][] factories;
     private Factory [] bestFactories;
 
@@ -19,6 +29,7 @@ public class Generation {
 
     public Generation(Factory [][] offspring) {
         factories = offspring;
+
         bestFactories = findBestFactories();
     }
 
@@ -37,39 +48,54 @@ public class Generation {
     * find the 4 best factories which will survive to breed new factories
     */
     public Factory[] findBestFactories() {
-        bestFactories = new Factory[4];
+//        bestFactories = new Factory[4];
+//        bestFactories[0] = factories[0][0];
+//        int rows =  factories.length;
+//        int columns = factories[0].length;
+//        for (int i = 0; i<rows; i++) {
+//            for (int j = 0; j<columns; j++) {
+//
+//                Factory temp = factories[i][j];
+//
+//                   //new best factory
+//                if (temp.betterThan(bestFactories[0]) && temp != bestFactories[0]){
+//                    bestFactories[3] = bestFactories[2];
+//                    bestFactories[2]=bestFactories[1];
+//                    bestFactories[1] = bestFactories[0];
+//                    bestFactories[0]= temp;
+//
+//                    //new second best factory
+//                } else if (temp.betterThan(bestFactories[1]) && temp != bestFactories[1] && temp != bestFactories[0]){
+//                    bestFactories[3] = bestFactories[2];
+//                    bestFactories[2]=bestFactories[1];
+//                    bestFactories[1] = temp;
+//
+//                    //new third best factory
+//                } else if (temp.betterThan(bestFactories[2]) && temp != bestFactories[2] && temp != bestFactories[1] && temp != bestFactories[0]) {
+//                    bestFactories[3] = bestFactories[2];
+//                    bestFactories[2]= temp;
+//
+//                    //new third best factory
+//                } else if (temp.betterThan(bestFactories[3]) && temp != bestFactories[3] && temp != bestFactories[2] && temp != bestFactories[1] && temp != bestFactories[0]){
+//                    bestFactories[3] = temp;
+//                }
+//            }
+//        }
+//
+//        return bestFactories;
+
+        Factory [] bestFactories = new Factory[8];
         bestFactories[0] = factories[0][0];
-        int rows =  factories.length;
+        int rows = factories.length;
         int columns = factories[0].length;
+
         for (int i = 0; i<rows; i++) {
-            for (int j = 0; j<columns; j++) {
+             for (int j = 0; j<columns; j++) {
 
-                Factory temp = factories[i][j];
-
-                   //new best factory
-                if (temp.betterThan(bestFactories[0]) && temp != bestFactories[0]){
-                    bestFactories[3] = bestFactories[2];
-                    bestFactories[2]=bestFactories[1];
-                    bestFactories[1] = bestFactories[0];
-                    bestFactories[0]= temp;
-
-                    //new second best factory
-                } else if (temp.betterThan(bestFactories[1]) && temp != bestFactories[1] && temp != bestFactories[0]){
-                    bestFactories[3] = bestFactories[2];
-                    bestFactories[2]=bestFactories[1];
-                    bestFactories[1] = temp;
-
-                    //new third best factory
-                } else if (temp.betterThan(bestFactories[2]) && temp != bestFactories[2] && temp != bestFactories[1] && temp != bestFactories[0]) {
-                    bestFactories[3] = bestFactories[2];
-                    bestFactories[2]= temp;
-
-                    //new third best factory
-                } else if (temp.betterThan(bestFactories[3]) && temp != bestFactories[3] && temp != bestFactories[2] && temp != bestFactories[1] && temp != bestFactories[0]){
-                    bestFactories[3] = temp;
-                }
-            }
+             }
         }
+
+
 
         return bestFactories;
     }
