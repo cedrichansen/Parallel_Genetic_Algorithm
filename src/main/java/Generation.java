@@ -126,7 +126,7 @@ public class Generation {
                     Collections.shuffle(Arrays.asList(bestFactories));
                     int [] points = generateCrossoverPoints(bestFactories[0].getRows(), bestFactories[0].getColumns());
                     Station [][] subsection = bestFactories[1].getFactorySection(points[0],points[1],points[2],points[3]);
-                    Factory f = new Factory(subsection, bestFactories[0], 5 );
+                    Factory f = new Factory(subsection, bestFactories[0], 2 );
                     offSpringFactories[i][j] = f;
 
             }
@@ -135,6 +135,17 @@ public class Generation {
         Generation ga = new Generation(offSpringFactories);
 
         return ga;
+    }
+
+    public int averageFitness() {
+        int sum = 0;
+        for (int i = 0; i<NUMROWS; i++) {
+            for (int j = 0; j<NUMCOLUMNS; j++){
+                sum += factories[i][j].getFactoryFitness();
+            }
+        }
+        return sum/(NUMCOLUMNS*NUMROWS);
+
     }
 
 
