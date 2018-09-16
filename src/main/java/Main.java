@@ -25,6 +25,14 @@ public class Main {
         f3.printLocalFitnesses();
         System.out.println("\n\n\nFactory Fitness: " + f3.getFactoryFitness() + "\nBest Local Fitness: " +  f3.getBestFitness().toString() +"\n\n\n");
 
+       //try generating a factory by inserting a random subsection of f3 determined by the generateCrossoverPoints() method
+        int [] points = f3.generateCrossoverPoints();
+        Station [][] subsection = f3.getFactorySection(points[0], points[1], points[2], points[3]);
+        Factory f4 = new Factory(10,10, subsection);
+        f4.printFactoryHeight();
+        System.out.println("\n\n\n");
+        f4.printLocalFitnesses();
+        System.out.println("\n\n\nFactory Fitness: " + f4.getFactoryFitness() + "\nBest Local Fitness: " +  f4.getBestFitness().toString() +"\n\n\n");
 
 
 

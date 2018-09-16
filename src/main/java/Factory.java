@@ -94,14 +94,32 @@ public class Factory {
         }
     }
 
+    /*
+     * establish random points to establish section of factory which will be passed onto offspring
+     */
+    public int[] generateCrossoverPoints(){
+        // [0] start row
+        // [1] start column
+        // [2] end row
+        // [3] end column
+        int startRow = random.nextInt(rows-1);
+        int startColumn = random.nextInt(columns-1);
+        int endRow, endColumn;
 
-    public int[] generateCrossoverPoint(){
-        int[] point = new int [2];
+        if (rows-startRow < 6) {
+            endRow = startRow + random.nextInt(rows - startRow);
+        } else {
+            endRow = startRow + random.nextInt(6);
+        }
 
-        int rowSplit = random.nextInt(rows);
-        int columnSplit = random.nextInt(columns);
+        if (columns - startColumn <6) {
+            endColumn = startColumn + random.nextInt(columns - startColumn);
+        } else {
+            endColumn = startColumn + random.nextInt(6);
+        }
 
-        return point;
+        int [] points = {startRow, startColumn, endRow, endColumn};
+        return points;
 
     }
 
@@ -157,7 +175,7 @@ public class Factory {
     public Station[][] getFactorySection(int startRow, int startColumn, int endRow, int endColumn) {
         Station[][] subsection = new Station[(endRow+1) - startRow][(endColumn+1) - startColumn];
 
-        if ((startColumn > -1) && (startRow > -1) && (endRow < rows) && (endColumn < columns) && (startColumn<endColumn) && (startRow<endRow)) {
+        if ((startColumn > -1) && (startRow > -1) && (endRow < rows) && (endColumn < columns) && (startColumn<=endColumn) && (startRow<=endRow)) {
             for (int i = startRow; i <= endRow; i++) {
                 for (int j = startColumn; j <= endColumn; j++) {
                     subsection[i - startRow][j - startColumn] = stations[i][j];
@@ -176,7 +194,7 @@ public class Factory {
 
     public void insertSubsection(Station[][] subsection){
         Station topLeftCorner = subsection[0][0];
-        Station bottomRightCorner = subsection[subsection.length-1][subsection.length-1];
+        Station bottomRightCorner = subsection[subsection.length-1][subsection[0].length-1];
         for (int i = 0; i<=bottomRightCorner.getRow()-topLeftCorner.getRow();i++) {
             for (int j = 0; j<=bottomRightCorner.getColumn()-topLeftCorner.getColumn(); j++) {
                 Station temp = subsection[i][j];
