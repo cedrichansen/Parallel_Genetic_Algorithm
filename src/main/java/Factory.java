@@ -4,7 +4,6 @@ import java.util.Random;
 
 public class Factory {
 
-    private final double mutationRate = 0.1;
     private Station[][] stations;
     private int rows, columns;
     private float fitness;
@@ -38,7 +37,7 @@ public class Factory {
     }
 
     /*
-     * this constructor is used for a factory which is the offspring of another
+     * this constructor is used for a factory which has a subsection of another factory inside
      */
     public Factory(int rows, int columns, Station [][] subsection) {
         this.rows = rows;
@@ -57,6 +56,27 @@ public class Factory {
         calculateFactoryFitness();
     }
 
+
+
+    /*
+    *  used to create a factory which is a crossover between 2 parents. One parents gives a subsection, the other parent
+    *  gives the rest of the genes
+    */
+    public Factory(Station [][] subsection, Factory secondParent, int mutationRate) {
+        this.rows = rows;
+        this.columns = columns;
+        totalSpots = rows * columns;
+        random = new Random();
+        factoryFitness = 0;
+        stations = secondParent.stations;
+        insertSubsection(subsection);
+        mutate(mutationRate);
+        assignNeighbours();
+        calculateLocalFitness();
+        calculateFactoryFitness();
+
+    }
+
     /*
      * Fills in the empty spots in the factory with new stations of random height
      */
@@ -73,6 +93,27 @@ public class Factory {
         }
         return stations;
     }
+
+
+
+    /*
+     * For any given square, there is a mutationrate % chance that the station's height changes to a new random value
+     */
+    public void mutate(int mutationRate) {
+        for (int i = 0; i<rows ;i++) {
+            for (int j=0; j<columns; j++) {
+                if (random.nextInt(100)<mutationRate) {
+                    Station s = new Station(random.nextInt((int) (2 * totalSpots)), i, j);
+                    stations[i][j] = s;
+                    listOfStations.add(s);
+                }
+            }
+        }
+
+
+    }
+
+
 
         /*
          * get the surrounding Stations and assign to each items neighbours list
@@ -94,34 +135,7 @@ public class Factory {
         }
     }
 
-    /*
-     * establish random points to establish section of factory which will be passed onto offspring
-     */
-    public int[] generateCrossoverPoints(){
-        // [0] start row
-        // [1] start column
-        // [2] end row
-        // [3] end column
-        int startRow = random.nextInt(rows-1);
-        int startColumn = random.nextInt(columns-1);
-        int endRow, endColumn;
 
-        if (rows-startRow < 6) {
-            endRow = startRow + random.nextInt(rows - startRow);
-        } else {
-            endRow = startRow + random.nextInt(6);
-        }
-
-        if (columns - startColumn <6) {
-            endColumn = startColumn + random.nextInt(columns - startColumn);
-        } else {
-            endColumn = startColumn + random.nextInt(6);
-        }
-
-        int [] points = {startRow, startColumn, endRow, endColumn};
-        return points;
-
-    }
 
     /*
      * function checks to see if a specific index is out of bounds. Returns true if index is within array bounds
@@ -256,7 +270,15 @@ public class Factory {
         }
     }
 
-
+    public boolean betterThan(Factory f) {
+        if (f == null){
+            return true;
+        }
+        if (this.factoryFitness - f.getFactoryFitness()>0) {
+            return true;
+        }
+        return false;
+    }
 
 
 
@@ -347,6 +369,7 @@ public class Factory {
     public void setSelected(boolean selected) {
         this.selected = selected;
     }
+
 
 
 }

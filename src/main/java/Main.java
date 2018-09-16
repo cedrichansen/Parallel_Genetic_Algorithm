@@ -2,6 +2,39 @@ public class Main {
 
     public static void main (String [] args) {
 
+        Generation ga = new Generation();
+        Generation secondGen = ga.generateOffSpring();
+        System.out.println();
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    static void testFactory(Generation ga){
         Factory f = new Factory(10,10);
         f.printFactoryHeight();
         System.out.println("\n\n\n");
@@ -25,8 +58,8 @@ public class Main {
         f3.printLocalFitnesses();
         System.out.println("\n\n\nFactory Fitness: " + f3.getFactoryFitness() + "\nBest Local Fitness: " +  f3.getBestFitness().toString() +"\n\n\n");
 
-       //try generating a factory by inserting a random subsection of f3 determined by the generateCrossoverPoints() method
-        int [] points = f3.generateCrossoverPoints();
+        //try generating a factory by inserting a random subsection of f3 determined by the generateCrossoverPoints() method
+        int [] points = ga.generateCrossoverPoints(10,10);
         Station [][] subsection = f3.getFactorySection(points[0], points[1], points[2], points[3]);
         Factory f4 = new Factory(10,10, subsection);
         f4.printFactoryHeight();
@@ -34,8 +67,5 @@ public class Main {
         f4.printLocalFitnesses();
         System.out.println("\n\n\nFactory Fitness: " + f4.getFactoryFitness() + "\nBest Local Fitness: " +  f4.getBestFitness().toString() +"\n\n\n");
 
-
-
     }
-
 }
