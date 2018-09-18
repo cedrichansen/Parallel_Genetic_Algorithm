@@ -112,10 +112,14 @@ public class Generation {
 
     public Generation generateOffSpring(){
         Factory[][] offSpringFactories = new Factory[NUMROWS][NUMCOLUMNS];
+        offSpringFactories[0][0] = bestFactories[0];
+        offSpringFactories[1][0] = bestFactories[1];
+        offSpringFactories[2][0] = bestFactories[2];
+        offSpringFactories[3][0] = bestFactories[3];
 
         //generate new factories which are offspring of other factories
         for (int i = 0; i<NUMROWS; i++) {
-            for (int j=0; j<NUMCOLUMNS; j++) {
+            for (int j=1; j<NUMCOLUMNS; j++) {
                     // idea: take 2 random of the best 8 factories. One parent will contribute a subsection of its genes
                     //which at most is a 7x7 section, and the other parent will contribute the rest of the genes
                     // the mutation rate is specified in the constructor as mutation rate (which is a % value)
