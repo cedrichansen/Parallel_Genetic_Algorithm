@@ -2,6 +2,7 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
+import java.util.ArrayList;
 
 public class Generation {
 
@@ -17,6 +18,7 @@ public class Generation {
 
     private Factory [][] factories;
     private Factory [] bestFactories;
+    ArrayList<Factory> factoryList;
 
     private final int NUMROWS = 4;
     private final int NUMCOLUMNS = 8;
@@ -24,12 +26,13 @@ public class Generation {
 
     public Generation() {
         factories = generateFactories(NUMROWS,NUMCOLUMNS);
+        factoryList = getFactoryList();
         bestFactories = findBestFactories();
     }
 
     public Generation(Factory [][] offspring) {
         factories = offspring;
-
+        factoryList = getFactoryList();
         bestFactories = findBestFactories();
     }
 
@@ -44,58 +47,29 @@ public class Generation {
         return factories;
     }
 
+    public ArrayList<Factory> getFactoryList() {
+     ArrayList<Factory> factoryList = new ArrayList<Factory>();
+
+     for (int i=0; i<NUMROWS; i++) {
+         for (int j=0; j<NUMCOLUMNS; j++) {
+             factoryList.add(factories[i][j]);
+         }
+     }
+
+     return factoryList;
+    }
+
     /*
-    * find the 4 best factories which will survive to breed new factories
+    * find the 8 best factories which will survive to breed new factories
     */
     public Factory[] findBestFactories() {
-//        bestFactories = new Factory[4];
-//        bestFactories[0] = factories[0][0];
-//        int rows =  factories.length;
-//        int columns = factories[0].length;
-//        for (int i = 0; i<rows; i++) {
-//            for (int j = 0; j<columns; j++) {
-//
-//                Factory temp = factories[i][j];
-//
-//                   //new best factory
-//                if (temp.betterThan(bestFactories[0]) && temp != bestFactories[0]){
-//                    bestFactories[3] = bestFactories[2];
-//                    bestFactories[2]=bestFactories[1];
-//                    bestFactories[1] = bestFactories[0];
-//                    bestFactories[0]= temp;
-//
-//                    //new second best factory
-//                } else if (temp.betterThan(bestFactories[1]) && temp != bestFactories[1] && temp != bestFactories[0]){
-//                    bestFactories[3] = bestFactories[2];
-//                    bestFactories[2]=bestFactories[1];
-//                    bestFactories[1] = temp;
-//
-//                    //new third best factory
-//                } else if (temp.betterThan(bestFactories[2]) && temp != bestFactories[2] && temp != bestFactories[1] && temp != bestFactories[0]) {
-//                    bestFactories[3] = bestFactories[2];
-//                    bestFactories[2]= temp;
-//
-//                    //new third best factory
-//                } else if (temp.betterThan(bestFactories[3]) && temp != bestFactories[3] && temp != bestFactories[2] && temp != bestFactories[1] && temp != bestFactories[0]){
-//                    bestFactories[3] = temp;
-//                }
-//            }
-//        }
-//
-//        return bestFactories;
 
         Factory [] bestFactories = new Factory[8];
-        bestFactories[0] = factories[0][0];
-        int rows = factories.length;
-        int columns = factories[0].length;
+        Collections.sort(factoryList);
 
-        for (int i = 0; i<rows; i++) {
-             for (int j = 0; j<columns; j++) {
-
-             }
+        for (int i = 0; i<8; i++){
+            bestFactories[i] = factoryList.get(i);
         }
-
-
 
         return bestFactories;
     }
@@ -140,12 +114,16 @@ public class Generation {
         offSpringFactories[1][0] = bestFactories[1];
         offSpringFactories[2][0] = bestFactories[2];
         offSpringFactories[3][0] = bestFactories[3];
+        offSpringFactories[0][1] = bestFactories[4];
+        offSpringFactories[1][1] = bestFactories[5];
+        offSpringFactories[2][1] = bestFactories[6];
+        offSpringFactories[3][1] = bestFactories[7];
 
 
         //generate new factories which are offspring of other factories
         for (int i = 0; i<NUMROWS; i++) {
-            for (int j=1; j<NUMCOLUMNS; j++) {
-                    // idea: take 2 random of the best 4 factories. One parent will contribute a subsection of its genes
+            for (int j=2; j<NUMCOLUMNS; j++) {
+                    // idea: take 2 random of the best 8 factories. One parent will contribute a subsection of its genes
                     //which at most is a 7x7 section, and the other parent will contribute the rest of the genes
                     // the mutation rate is specified in the constructor as mutation rate (which is a % value)
 

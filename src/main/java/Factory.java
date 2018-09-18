@@ -3,7 +3,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Factory {
+public class Factory implements Comparable{
 
     private DecimalFormat df2 = new DecimalFormat(".#");
 
@@ -287,6 +287,18 @@ public class Factory {
 
     public String toString() {
         return df2.format(this.factoryFitness);
+    }
+
+
+    public int compareTo(Object o) {
+
+        if (((Factory)o).factoryFitness - this.factoryFitness >0) {
+            return 1;
+        } else if (((Factory)o).factoryFitness - this.factoryFitness < 0) {
+            return -1;
+        } else {
+            return 0;
+        }
     }
 
 

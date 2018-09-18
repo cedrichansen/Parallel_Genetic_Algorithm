@@ -18,10 +18,12 @@ public class Main {
                 for (int j = 0; j < a.getBestFactories().length; j++) {
                     System.out.println(j + ": " + a.getBestFactories()[j].getFactoryFitness());
                 }
-                System.out.println("\nAverage Fitness: " + a.averageFitness());
+
+                System.out.println("\nAverage Fitness: " + a.averageFitness() + "\n");
                 System.out.println("\n\nGeneration View\n\n");
                 a.printGeneration();
                 System.out.println("\n\n\n--------------------------");
+
             }
             a= a.generateOffSpring();
 
