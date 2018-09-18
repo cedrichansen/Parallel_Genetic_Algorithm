@@ -12,8 +12,7 @@ public class Main {
         Generation a = new Generation();
         //a.getBestFactories()[0].printLocalFitnesses();
 
-        for (int i = 0; i<5000; i++) {
-            if (i%100 == 0) {
+        for (int i = 0; i<10000; i++) {
                 System.out.println("Generation " + i + "\nBestFitnesses:");
                 for (int j = 0; j < a.getBestFactories().length; j++) {
                     System.out.println(j + ": " + a.getBestFactories()[j].getFactoryFitness());
@@ -24,10 +23,12 @@ public class Main {
                 a.printGeneration();
                 System.out.println("\n\n\n--------------------------");
 
-            }
+                if (a.averageFitness() > 170) {
+                    break;
+                }
+
+
             a= a.generateOffSpring();
-
-
         }
 
         //a.getBestFactories()[0].printLocalFitnesses();
