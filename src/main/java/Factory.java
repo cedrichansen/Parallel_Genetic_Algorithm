@@ -1,9 +1,10 @@
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
-public class Factory implements Comparable{
+public class Factory implements Comparable {
 
     private DecimalFormat df2 = new DecimalFormat(".#");
 
@@ -34,6 +35,7 @@ public class Factory implements Comparable{
         stations = new Station[rows][columns];
         stations = generateStations(rows, columns);
         assignNeighbours();
+        assignDistantNeighbours();
         calculateLocalFitness();
         calculateFactoryFitness();
 
@@ -42,7 +44,7 @@ public class Factory implements Comparable{
     /*
      * this constructor is used for a factory which has a subsection of another factory inside
      */
-    public Factory(int rows, int columns, Station [][] subsection) {
+    public Factory(int rows, int columns, Station[][] subsection) {
         this.rows = rows;
         this.columns = columns;
         totalSpots = rows * columns;
@@ -55,17 +57,17 @@ public class Factory implements Comparable{
         insertSubsection(subsection);
         stations = generateStations(rows, columns);
         assignNeighbours();
+        assignDistantNeighbours();
         calculateLocalFitness();
         calculateFactoryFitness();
     }
-
 
 
     /*
     *  used to create a factory which is a crossover between 2 parents. One parents gives a subsection, the other parent
     *  gives the rest of the genes
     */
-    public Factory(Station [][] subsection, Factory secondParent, int mutationRate) {
+    public Factory(Station[][] subsection, Factory secondParent, int mutationRate) {
         this.rows = secondParent.getRows();
         this.columns = secondParent.getColumns();
         totalSpots = rows * columns;
@@ -77,6 +79,7 @@ public class Factory implements Comparable{
         mutate(mutationRate);
         //add a function whose mutation is to add the best part of the second parent into the new factory
         assignNeighbours();
+        assignDistantNeighbours();
         calculateLocalFitness();
         calculateFactoryFitness();
 
@@ -100,14 +103,13 @@ public class Factory implements Comparable{
     }
 
 
-
     /*
      * For any given square, there is a mutationrate % chance that the station's height changes to a new random value
      */
     public void mutate(int mutationRate) {
-        for (int i = 0; i<rows ;i++) {
-            for (int j=0; j<columns; j++) {
-                if (random.nextInt(100)<mutationRate) {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                if (random.nextInt(100) < mutationRate) {
                     Station s = new Station(random.nextInt((int) (2 * totalSpots)), i, j);
                     stations[i][j] = s;
                     listOfStations.add(s);
@@ -140,6 +142,68 @@ public class Factory implements Comparable{
         }
     }
 
+    public void assignDistantNeighbours() {
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                Station current = stations[i][j];
+                current.setDistantNeighbours(new ArrayList<Station>());
+                int distanceToBottom = this.rows-1-current.getRow();
+                int distanceToSide = this.columns-1-current.getColumn();
+
+                //Yes I know this is a mess...
+
+                if (distanceToBottom > 1 && distanceToSide > 1) {
+                    current.getDistantNeighbours().add(stations[i + 2][j + 2]);
+                }
+                if (distanceToBottom > 1 && distanceToSide > 0) {
+                    current.getDistantNeighbours().add(stations[i + 2][j + 1]);
+                }
+                if (distanceToBottom >1 ) {
+                    current.getDistantNeighbours().add(stations[i + 2][j]);
+                }
+                if (distanceToBottom > 1 && current.getColumn() >0) {
+                    current.getDistantNeighbours().add(stations[i + 2][j - 1]);
+                }
+                if (distanceToBottom>1 && current.getColumn() > 1) {
+                    current.getDistantNeighbours().add(stations[i + 2][j - 2]);
+                }
+                if (distanceToBottom > 0 && current.getColumn() > 1 ) {
+                    current.getDistantNeighbours().add(stations[i + 1][j - 2]);
+                }
+                if (distanceToBottom > 0 && distanceToSide > 1) {
+                    current.getDistantNeighbours().add(stations[i + 1][j + 2]);
+                }
+                if (current.getColumn() > 1) {
+                    current.getDistantNeighbours().add(stations[i][j - 2]);
+                }
+                if (distanceToSide > 1) {
+                    current.getDistantNeighbours().add(stations[i][j + 2]);
+                }
+                if (current.getRow() >0 && current.getColumn()>1) {
+                    current.getDistantNeighbours().add(stations[i - 1][j - 2]);
+                }
+                if (current.getRow()>0 && distanceToSide >1) {
+                    current.getDistantNeighbours().add(stations[i - 1][j + 2]);
+                }
+                if (current.getRow()>1 && current.getColumn() >1) {
+                    current.getDistantNeighbours().add(stations[i - 2][j - 2]);
+                }
+                if (current.getRow() >1 && current.getColumn() >0) {
+                    current.getDistantNeighbours().add(stations[i - 2][j - 1]);
+                }
+                if (current.getRow() > 1) {
+                    current.getDistantNeighbours().add(stations[i - 2][j]);
+                }
+                if (current.getRow() >1 && distanceToSide>0) {
+                    current.getDistantNeighbours().add(stations[i - 2][j + 1]);
+                }
+                if (current.getRow()>1 && distanceToSide >1) {
+                    current.getDistantNeighbours().add(stations[i - 2][j + 2]);
+                }
+            }
+        }
+    }
 
 
     /*
@@ -157,11 +221,14 @@ public class Factory implements Comparable{
      */
     public void calculateLocalFitness() {
         bestFitness = stations[1][1];
-        for (int i = 1; i < rows-1; i++) {
-            for (int j = 1; j < columns-1; j++) {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
                 int sum = 0;
                 for (Station s : stations[i][j].getNeighbours()) {
                     sum += Math.abs(stations[i][j].getHeight() - s.getHeight());
+                }
+                for (Station s : stations[i][j].getDistantNeighbours()) {
+                    sum += (0.5*(Math.abs(stations[i][j].getHeight()-s.getHeight())));
                 }
                 stations[i][j].setLocalFitness(1000 / (double) sum);
                 if (stations[i][j].getLocalFitness() > bestFitness.getLocalFitness()) {
@@ -192,9 +259,9 @@ public class Factory implements Comparable{
      */
 
     public Station[][] getFactorySection(int startRow, int startColumn, int endRow, int endColumn) {
-        Station[][] subsection = new Station[(endRow+1) - startRow][(endColumn+1) - startColumn];
+        Station[][] subsection = new Station[(endRow + 1) - startRow][(endColumn + 1) - startColumn];
 
-        if ((startColumn > -1) && (startRow > -1) && (endRow < rows) && (endColumn < columns) && (startColumn<=endColumn) && (startRow<=endRow)) {
+        if ((startColumn > -1) && (startRow > -1) && (endRow < rows) && (endColumn < columns) && (startColumn <= endColumn) && (startRow <= endRow)) {
             for (int i = startRow; i <= endRow; i++) {
                 for (int j = startColumn; j <= endColumn; j++) {
                     subsection[i - startRow][j - startColumn] = stations[i][j];
@@ -211,13 +278,13 @@ public class Factory implements Comparable{
      *  into the another (presumably new) factory
      */
 
-    public void insertSubsection(Station[][] subsection){
+    public void insertSubsection(Station[][] subsection) {
         Station topLeftCorner = subsection[0][0];
-        Station bottomRightCorner = subsection[subsection.length-1][subsection[0].length-1];
-        for (int i = 0; i<=bottomRightCorner.getRow()-topLeftCorner.getRow();i++) {
-            for (int j = 0; j<=bottomRightCorner.getColumn()-topLeftCorner.getColumn(); j++) {
+        Station bottomRightCorner = subsection[subsection.length - 1][subsection[0].length - 1];
+        for (int i = 0; i <= bottomRightCorner.getRow() - topLeftCorner.getRow(); i++) {
+            for (int j = 0; j <= bottomRightCorner.getColumn() - topLeftCorner.getColumn(); j++) {
                 Station temp = subsection[i][j];
-                stations[i+topLeftCorner.getRow()][j+topLeftCorner.getColumn()]= temp;
+                stations[i + topLeftCorner.getRow()][j + topLeftCorner.getColumn()] = temp;
             }
         }
     }
@@ -257,10 +324,9 @@ public class Factory implements Comparable{
                 if (j != columns - 1) {
                     if (stations[i][j].getLocalFitness() < 1) {
                         rowString += stations[i][j].getLocalFitnessToPrint() + "  | ";
-                    }else if (stations[i][j].getLocalFitness() < 10) {
+                    } else if (stations[i][j].getLocalFitness() < 10) {
                         rowString += stations[i][j].getLocalFitnessToPrint() + " | ";
-                    }
-                     else {
+                    } else {
                         rowString += stations[i][j].getLocalFitnessToPrint() + "| ";
                     }
                 } else {
@@ -276,10 +342,10 @@ public class Factory implements Comparable{
     }
 
     public boolean betterThan(Factory f) {
-        if (f == null){
+        if (f == null) {
             return true;
         }
-        if (this.factoryFitness - f.getFactoryFitness()>0) {
+        if (this.factoryFitness - f.getFactoryFitness() > 0) {
             return true;
         }
         return false;
@@ -292,15 +358,14 @@ public class Factory implements Comparable{
 
     public int compareTo(Object o) {
 
-        if (((Factory)o).factoryFitness - this.factoryFitness >0) {
+        if (((Factory) o).factoryFitness - this.factoryFitness > 0) {
             return 1;
-        } else if (((Factory)o).factoryFitness - this.factoryFitness < 0) {
+        } else if (((Factory) o).factoryFitness - this.factoryFitness < 0) {
             return -1;
         } else {
             return 0;
         }
     }
-
 
 
     public Station getBestFitness() {
@@ -390,7 +455,6 @@ public class Factory implements Comparable{
     public void setSelected(boolean selected) {
         this.selected = selected;
     }
-
 
 
 }

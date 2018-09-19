@@ -9,6 +9,7 @@ public class Station {
     private int row;
     private int column;
     private ArrayList<Station> neighbours;
+    private ArrayList<Station> distantNeighbours;
 
 
 
@@ -70,6 +71,14 @@ public class Station {
 
     public void setColumn(int column) {
         this.column = column;
+    }
+
+    public ArrayList<Station> getDistantNeighbours() {
+        return distantNeighbours;
+    }
+
+    public void setDistantNeighbours(ArrayList<Station> distantNeighbours) {
+        this.distantNeighbours = distantNeighbours;
     }
 
 
