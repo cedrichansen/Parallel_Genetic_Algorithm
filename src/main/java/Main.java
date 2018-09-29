@@ -23,7 +23,8 @@ public class Main {
                 a.printGeneration();
                 System.out.println("\n\n\n--------------------------");
 
-                if (a.averageFitness() > 170) {
+                if (a.averageFitness() > 175) {
+                    a.getBestFactories()[0].printFactoryHeight();
                     break;
                 }
 
