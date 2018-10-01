@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-public class Factory implements Comparable {
+public class Factory implements Comparable, Runnable {
 
     private DecimalFormat df2 = new DecimalFormat(".#");
 
@@ -14,11 +14,13 @@ public class Factory implements Comparable {
     private int totalSpots;
     private int id;
     private ArrayList<Station> listOfStations;
-    private ArrayList<int[]> swaps;
     private Random random;
-    private boolean selected;
-    private double factoryFitness;
+    private double factoryFitness=0;
     private Station bestFitness;
+    private boolean originalFactory;
+    private Station[][] subsection;
+    private int mutationRate;
+
 
     /*
      * this constructor is used to generate the first generation of factories
@@ -28,38 +30,17 @@ public class Factory implements Comparable {
         this.columns = columns;
         totalSpots = rows * columns;
         random = new Random();
-        factoryFitness = 0;
-        listOfStations = new ArrayList<Station>();
-        swaps = new ArrayList<int[]>();
-        selected = false;
         stations = new Station[rows][columns];
-        stations = generateStations(rows, columns);
-        assignNeighbours();
-        assignDistantNeighbours();
-        calculateLocalFitness();
-        calculateFactoryFitness();
+        originalFactory=true;
+        //stations = generateStations(rows, columns);
 
-    }
+        //comment all this out
 
-    /*
-     * this constructor is used for a factory which has a subsection of another factory inside
-     */
-    public Factory(int rows, int columns, Station[][] subsection) {
-        this.rows = rows;
-        this.columns = columns;
-        totalSpots = rows * columns;
-        random = new Random();
-        factoryFitness = 0;
-        listOfStations = new ArrayList<Station>();
-        swaps = new ArrayList<int[]>();
-        selected = false;
-        stations = new Station[rows][columns];
-        insertSubsection(subsection);
-        stations = generateStations(rows, columns);
-        assignNeighbours();
-        assignDistantNeighbours();
-        calculateLocalFitness();
-        calculateFactoryFitness();
+//        assignNeighbours();
+//        assignDistantNeighbours();
+//        calculateLocalFitness();
+//        calculateFactoryFitness();
+
     }
 
 
@@ -72,30 +53,50 @@ public class Factory implements Comparable {
         this.columns = secondParent.getColumns();
         totalSpots = rows * columns;
         random = new Random();
-        factoryFitness = 0;
+        originalFactory=false;
+
+        this.subsection = subsection;
         stations = secondParent.stations;
-        insertSubsection(subsection);
-        listOfStations = new ArrayList<Station>();
-        mutate(mutationRate);
-        //add a function whose mutation is to add the best part of the second parent into the new factory
+        this.mutationRate = mutationRate;
+
+
+        //comment all thus out
+//        insertSubsection(subsection);
+//        mutate(mutationRate);
+//
+//        assignNeighbours();
+//        assignDistantNeighbours();
+//        calculateLocalFitness();
+//        calculateFactoryFitness();
+
+    }
+
+
+    public void run() {
+        System.out.println("Running a thread: " + Thread.currentThread().getId());
+        if (!originalFactory) {
+            insertSubsection(this.subsection);
+            mutate(this.mutationRate);
+        } else {
+            stations = generateStations(rows, columns);
+        }
         assignNeighbours();
         assignDistantNeighbours();
         calculateLocalFitness();
         calculateFactoryFitness();
-
+        System.out.println("thread is done: " + Thread.currentThread().getId());
     }
 
     /*
      * Fills in the empty spots in the factory with new stations of random height
      */
-    public Station[][] generateStations(int rows, int columns) {
+    public synchronized Station[][] generateStations(int rows, int columns) {
         //Station[][] stations = new Station[rows][columns];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 if (stations[i][j] == null) {
                     Station s = new Station(random.nextInt((int) (2 * totalSpots)), i, j);
                     stations[i][j] = s;
-                    listOfStations.add(s);
                 }
             }
         }
@@ -106,13 +107,12 @@ public class Factory implements Comparable {
     /*
      * For any given square, there is a mutationrate % chance that the station's height changes to a new random value
      */
-    public void mutate(int mutationRate) {
+    public synchronized void mutate(int mutationRate) {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 if (random.nextInt(100) < mutationRate) {
                     Station s = new Station(random.nextInt((int) (2 * totalSpots)), i, j);
                     stations[i][j] = s;
-                    listOfStations.add(s);
                 }
             }
         }
@@ -127,7 +127,7 @@ public class Factory implements Comparable {
          * makes calculating fitness easier
          */
 
-    public void assignNeighbours() {
+    public synchronized void assignNeighbours() {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 stations[i][j].setNeighbours(new ArrayList<Station>());
@@ -142,7 +142,7 @@ public class Factory implements Comparable {
         }
     }
 
-    public void assignDistantNeighbours() {
+    public synchronized void assignDistantNeighbours() {
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
@@ -219,7 +219,7 @@ public class Factory implements Comparable {
      *
      * exclude calculating the edges and corners because their values are always skewed to be low
      */
-    public void calculateLocalFitness() {
+    public synchronized void calculateLocalFitness() {
         bestFitness = stations[1][1];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
@@ -243,7 +243,7 @@ public class Factory implements Comparable {
      * which is equal to the sum of all station localFitnesses
      */
 
-    public void calculateFactoryFitness() {
+    public synchronized void calculateFactoryFitness() {
         double factoryFitness = 0;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
@@ -278,7 +278,7 @@ public class Factory implements Comparable {
      *  into the another (presumably new) factory
      */
 
-    public void insertSubsection(Station[][] subsection) {
+    public synchronized void insertSubsection(Station[][] subsection) {
         Station topLeftCorner = subsection[0][0];
         Station bottomRightCorner = subsection[subsection.length - 1][subsection[0].length - 1];
         for (int i = 0; i <= bottomRightCorner.getRow() - topLeftCorner.getRow(); i++) {
@@ -432,13 +432,6 @@ public class Factory implements Comparable {
         this.listOfStations = listOfStations;
     }
 
-    public ArrayList<int[]> getSwaps() {
-        return swaps;
-    }
-
-    public void setSwaps(ArrayList<int[]> swaps) {
-        this.swaps = swaps;
-    }
 
     public Random getRandom() {
         return random;
@@ -448,13 +441,15 @@ public class Factory implements Comparable {
         this.random = random;
     }
 
-    public boolean isSelected() {
-        return selected;
+
+    public boolean isOriginalFactory() {
+        return originalFactory;
     }
 
-    public void setSelected(boolean selected) {
-        this.selected = selected;
+    public void setOriginalFactory(boolean originalFactory) {
+        this.originalFactory = originalFactory;
     }
+
 
 
 }

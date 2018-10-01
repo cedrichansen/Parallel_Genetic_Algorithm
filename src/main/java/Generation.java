@@ -5,18 +5,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 import java.util.ArrayList;
+import java.util.concurrent.*;
 
 public class Generation {
-
-    /*
-    TO DO:
-
-    mutate factories in the second constructor - look into this
-    keep 8/32 alive for next gen
-    look into splitting the parents in half
-
-
-    */
 
     private Factory [][] factories;
     private Factory [] bestFactories;
@@ -39,14 +30,30 @@ public class Generation {
     }
 
     public Factory [][] generateFactories(int rows,  int columns) {
-        Factory [][] factories = new Factory[rows][columns];
-        for (int i =0; i<rows; i++) {
-            for (int j = 0; j<columns; j++) {
-                Factory f = new Factory(10, 10);
-                factories[i][j] = f;
+        int numThreads = Runtime.getRuntime().availableProcessors();
+        numThreads = (numThreads > 32) ? 32 : numThreads;
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+
+        try {
+            Factory [][] factories = new Factory[rows][columns];
+            for (int i =0; i<rows; i++) {
+                for (int j = 0; j<columns; j++) {
+
+
+                    Factory f = new Factory(10, 10);
+                    factories[i][j] = f;
+                    executor.execute(f);
+                }
             }
+            executor.shutdown();
+            executor.awaitTermination(1000, TimeUnit.MILLISECONDS);
+            return factories;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-        return factories;
+
     }
 
     public ArrayList<Factory> getFactoryList() {
