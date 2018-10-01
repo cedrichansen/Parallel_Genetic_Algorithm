@@ -56,6 +56,45 @@ public class Generation {
 
     }
 
+    public Generation generateOffSpring(){
+        Factory[][] offSpringFactories = new Factory[NUMROWS][NUMCOLUMNS];
+        offSpringFactories[0][0] = bestFactories[0];
+        offSpringFactories[1][0] = bestFactories[1];
+        offSpringFactories[2][0] = bestFactories[2];
+        offSpringFactories[3][0] = bestFactories[3];
+
+        int numThreads = Runtime.getRuntime().availableProcessors();
+        numThreads = (numThreads > 32) ? 32 : numThreads;
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        try {
+            for (int i = 0; i<NUMROWS; i++) {
+                for (int j=1; j<NUMCOLUMNS; j++) {
+                    // idea: take 2 random of the best 8 factories. One parent will contribute a subsection of its genes
+                    //which at most is a 7x7 section, and the other parent will contribute the rest of the genes
+                    // the mutation rate is specified in the constructor as mutation rate (which is a % value)
+
+                    Collections.shuffle(Arrays.asList(bestFactories));
+                    int [] points = generateCrossoverPoints(bestFactories[0].getRows(), bestFactories[0].getColumns());
+                    Station [][] subsection = bestFactories[1].getFactorySection(points[0],points[1],points[2],points[3]);
+                    Factory f = new Factory(subsection, bestFactories[0], 2 );
+                    offSpringFactories[i][j] = f;
+                    executor.execute(f);
+                }
+            }
+            executor.shutdown();
+            executor.awaitTermination(1000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //generate new factories which are offspring of other factories
+
+
+        Generation ga = new Generation(offSpringFactories);
+
+        return ga;
+    }
+
+
     public ArrayList<Factory> getFactoryList() {
      ArrayList<Factory> factoryList = new ArrayList<Factory>();
 
@@ -117,33 +156,7 @@ public class Generation {
 
 
 
-    public Generation generateOffSpring(){
-        Factory[][] offSpringFactories = new Factory[NUMROWS][NUMCOLUMNS];
-        offSpringFactories[0][0] = bestFactories[0];
-        offSpringFactories[1][0] = bestFactories[1];
-        offSpringFactories[2][0] = bestFactories[2];
-        offSpringFactories[3][0] = bestFactories[3];
 
-        //generate new factories which are offspring of other factories
-        for (int i = 0; i<NUMROWS; i++) {
-            for (int j=1; j<NUMCOLUMNS; j++) {
-                    // idea: take 2 random of the best 8 factories. One parent will contribute a subsection of its genes
-                    //which at most is a 7x7 section, and the other parent will contribute the rest of the genes
-                    // the mutation rate is specified in the constructor as mutation rate (which is a % value)
-
-                    Collections.shuffle(Arrays.asList(bestFactories));
-                    int [] points = generateCrossoverPoints(bestFactories[0].getRows(), bestFactories[0].getColumns());
-                    Station [][] subsection = bestFactories[1].getFactorySection(points[0],points[1],points[2],points[3]);
-                    Factory f = new Factory(subsection, bestFactories[0], 2 );
-                    offSpringFactories[i][j] = f;
-
-            }
-        }
-
-        Generation ga = new Generation(offSpringFactories);
-
-        return ga;
-    }
 
     public int averageFitness() {
         int sum = 0;

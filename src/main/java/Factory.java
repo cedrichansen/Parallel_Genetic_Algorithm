@@ -209,7 +209,7 @@ public class Factory implements Comparable, Runnable {
     /*
      * function checks to see if a specific index is out of bounds. Returns true if index is within array bounds
      */
-    public boolean validSpot(int i, int j) {
+    public synchronized boolean validSpot(int i, int j) {
         return (i >= 0 && i < rows && j >= 0 && j < columns);
     }
 
