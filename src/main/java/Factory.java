@@ -79,7 +79,7 @@ public class Factory implements Comparable, Runnable {
         if (!originalFactory) {
             try {
                 System.out.println(Thread.currentThread().getId() + " is sleeping...");
-                Thread.sleep(175);
+                Thread.sleep(500);
             }catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -94,8 +94,10 @@ public class Factory implements Comparable, Runnable {
         calculateFactoryFitness();
         if (!originalFactory) {
             countDownLatch.countDown();
+            System.out.println("countdownLatch count: " + countDownLatch.getCount());
         }
-        System.out.println("thread is done: " + Thread.currentThread().getId());
+        System.out.println("Thread is done: " + Thread.currentThread().getId());
+
     }
 
     /*

@@ -91,7 +91,7 @@ public class Generation {
             }
             countDownLatch.await();
             executor.shutdown();
-            executor.awaitTermination(1000, TimeUnit.MILLISECONDS);
+            executor.awaitTermination(9000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
