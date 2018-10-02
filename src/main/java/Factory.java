@@ -3,6 +3,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class Factory implements Comparable, Runnable {
 
@@ -15,12 +17,12 @@ public class Factory implements Comparable, Runnable {
     private int id;
     private ArrayList<Station> listOfStations;
     private Random random;
-    private double factoryFitness=0;
+    private double factoryFitness;
     private Station bestFitness;
     private boolean originalFactory;
     private Station[][] subsection;
     private int mutationRate;
-
+    private CountDownLatch countDownLatch;
 
     /*
      * this constructor is used to generate the first generation of factories
@@ -48,7 +50,7 @@ public class Factory implements Comparable, Runnable {
     *  used to create a factory which is a crossover between 2 parents. One parents gives a subsection, the other parent
     *  gives the rest of the genes
     */
-    public Factory(Station[][] subsection, Factory secondParent, int mutationRate) {
+    public Factory(Station[][] subsection, Factory secondParent, int mutationRate, CountDownLatch cdl) {
         this.rows = secondParent.getRows();
         this.columns = secondParent.getColumns();
         totalSpots = rows * columns;
@@ -58,7 +60,7 @@ public class Factory implements Comparable, Runnable {
         this.subsection = subsection;
         stations = secondParent.stations;
         this.mutationRate = mutationRate;
-
+        countDownLatch = cdl;
 
         //comment all thus out
 //        insertSubsection(subsection);
@@ -75,6 +77,12 @@ public class Factory implements Comparable, Runnable {
     public void run() {
         System.out.println("Running a thread: " + Thread.currentThread().getId());
         if (!originalFactory) {
+            try {
+                System.out.println(Thread.currentThread().getId() + " is sleeping...");
+                Thread.sleep(175);
+            }catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             insertSubsection(this.subsection);
             mutate(this.mutationRate);
         } else {
@@ -84,13 +92,16 @@ public class Factory implements Comparable, Runnable {
         assignDistantNeighbours();
         calculateLocalFitness();
         calculateFactoryFitness();
+        if (!originalFactory) {
+            countDownLatch.countDown();
+        }
         System.out.println("thread is done: " + Thread.currentThread().getId());
     }
 
     /*
      * Fills in the empty spots in the factory with new stations of random height
      */
-    public synchronized Station[][] generateStations(int rows, int columns) {
+    public Station[][] generateStations(int rows, int columns) {
         //Station[][] stations = new Station[rows][columns];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
@@ -107,7 +118,7 @@ public class Factory implements Comparable, Runnable {
     /*
      * For any given square, there is a mutationrate % chance that the station's height changes to a new random value
      */
-    public synchronized void mutate(int mutationRate) {
+    public void mutate(int mutationRate) {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 if (random.nextInt(100) < mutationRate) {
@@ -127,7 +138,7 @@ public class Factory implements Comparable, Runnable {
          * makes calculating fitness easier
          */
 
-    public synchronized void assignNeighbours() {
+    public void assignNeighbours() {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 stations[i][j].setNeighbours(new ArrayList<Station>());
@@ -142,7 +153,7 @@ public class Factory implements Comparable, Runnable {
         }
     }
 
-    public synchronized void assignDistantNeighbours() {
+    public void assignDistantNeighbours() {
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
@@ -219,10 +230,11 @@ public class Factory implements Comparable, Runnable {
      *
      * exclude calculating the edges and corners because their values are always skewed to be low
      */
-    public synchronized void calculateLocalFitness() {
+    public void calculateLocalFitness() {
         bestFitness = stations[1][1];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
+
                 int sum = 0;
                 for (Station s : stations[i][j].getNeighbours()) {
                     sum += Math.abs(stations[i][j].getHeight() - s.getHeight());
@@ -234,6 +246,8 @@ public class Factory implements Comparable, Runnable {
                 if (stations[i][j].getLocalFitness() > bestFitness.getLocalFitness()) {
                     bestFitness = stations[i][j];
                 }
+
+
             }
         }
     }
@@ -243,7 +257,7 @@ public class Factory implements Comparable, Runnable {
      * which is equal to the sum of all station localFitnesses
      */
 
-    public synchronized void calculateFactoryFitness() {
+    public void calculateFactoryFitness() {
         double factoryFitness = 0;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {

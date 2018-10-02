@@ -63,6 +63,10 @@ public class Generation {
         offSpringFactories[2][0] = bestFactories[2];
         offSpringFactories[3][0] = bestFactories[3];
 
+        CountDownLatch countDownLatch = new CountDownLatch((NUMROWS*NUMCOLUMNS)-NUMROWS);
+
+
+        ArrayList<Factory> unProcessedFactories = new ArrayList<Factory>();
         int numThreads = Runtime.getRuntime().availableProcessors();
         numThreads = (numThreads > 32) ? 32 : numThreads;
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
@@ -76,18 +80,21 @@ public class Generation {
                     Collections.shuffle(Arrays.asList(bestFactories));
                     int [] points = generateCrossoverPoints(bestFactories[0].getRows(), bestFactories[0].getColumns());
                     Station [][] subsection = bestFactories[1].getFactorySection(points[0],points[1],points[2],points[3]);
-                    Factory f = new Factory(subsection, bestFactories[0], 2 );
+                    Factory f = new Factory(subsection, bestFactories[0], 2, countDownLatch);
                     offSpringFactories[i][j] = f;
-                    executor.execute(f);
+                    //executor.execute(f);
+                    unProcessedFactories.add(f);
                 }
             }
+            for (Factory f :unProcessedFactories) {
+                executor.execute(f);
+            }
+            countDownLatch.await();
             executor.shutdown();
             executor.awaitTermination(1000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //generate new factories which are offspring of other factories
-
 
         Generation ga = new Generation(offSpringFactories);
 
