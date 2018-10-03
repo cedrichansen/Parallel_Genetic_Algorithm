@@ -38,18 +38,20 @@ public class Station {
         return df2.format(localFitness);
     }
 
-    public void addNeighbour(Station s){
+    public synchronized void addNeighbour(Station s){
+
         this.neighbours.add(s);
     }
 
-    public ArrayList<Station> getNeighbours() {
+    public synchronized ArrayList<Station> getNeighbours() {
         return neighbours;
     }
-    public void setNeighbours(ArrayList<Station> neighbours){
+
+    public synchronized void setNeighbours(ArrayList<Station> neighbours){
         this.neighbours = neighbours;
     }
 
-    public int getHeight() {
+    public synchronized int getHeight() {
         return height;
     }
 
@@ -73,11 +75,11 @@ public class Station {
         this.column = column;
     }
 
-    public ArrayList<Station> getDistantNeighbours() {
+    public synchronized ArrayList<Station> getDistantNeighbours() {
         return distantNeighbours;
     }
 
-    public void setDistantNeighbours(ArrayList<Station> distantNeighbours) {
+    public synchronized void setDistantNeighbours(ArrayList<Station> distantNeighbours) {
         this.distantNeighbours = distantNeighbours;
     }
 

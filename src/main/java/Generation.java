@@ -1,5 +1,6 @@
 import javafx.scene.Parent;
 
+import java.sql.Time;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -82,16 +83,17 @@ public class Generation {
                     Station [][] subsection = bestFactories[1].getFactorySection(points[0],points[1],points[2],points[3]);
                     Factory f = new Factory(subsection, bestFactories[0], 2, countDownLatch);
                     offSpringFactories[i][j] = f;
-                    //executor.execute(f);
                     unProcessedFactories.add(f);
                 }
             }
             for (Factory f :unProcessedFactories) {
                 executor.execute(f);
+                //executor.submit(f);
             }
+            //countDownLatch.await(1500, TimeUnit.MILLISECONDS);
             countDownLatch.await();
             executor.shutdown();
-            executor.awaitTermination(9000, TimeUnit.MILLISECONDS);
+            //executor.awaitTermination(10000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -119,10 +121,10 @@ public class Generation {
     */
     public Factory[] findBestFactories() {
 
-        Factory [] bestFactories = new Factory[8];
+        Factory [] bestFactories = new Factory[4];
         Collections.sort(factoryList);
 
-        for (int i = 0; i<8; i++){
+        for (int i = 0; i<4; i++){
             bestFactories[i] = factoryList.get(i);
         }
 

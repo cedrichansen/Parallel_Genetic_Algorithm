@@ -14,7 +14,6 @@ public class Factory implements Comparable, Runnable {
     private int rows, columns;
     private float fitness;
     private int totalSpots;
-    private int id;
     private ArrayList<Station> listOfStations;
     private Random random;
     private double factoryFitness;
@@ -75,27 +74,30 @@ public class Factory implements Comparable, Runnable {
 
 
     public void run() {
-        System.out.println("Running a thread: " + Thread.currentThread().getId());
+        System.out.println("Started a thread: " + Thread.currentThread().getId() + " " + Thread.currentThread().getName());
         if (!originalFactory) {
             try {
                 System.out.println(Thread.currentThread().getId() + " is sleeping...");
-                Thread.sleep(500);
+                Thread.sleep(5);
             }catch (InterruptedException e) {
                 e.printStackTrace();
             }
             insertSubsection(this.subsection);
             mutate(this.mutationRate);
-        } else {
-            stations = generateStations(rows, columns);
-        }
-        assignNeighbours();
-        assignDistantNeighbours();
-        calculateLocalFitness();
-        calculateFactoryFitness();
-        if (!originalFactory) {
+            assignNeighbours();
+            assignDistantNeighbours();
+            calculateLocalFitness();
+            calculateFactoryFitness();
             countDownLatch.countDown();
             System.out.println("countdownLatch count: " + countDownLatch.getCount());
+        } else {
+            stations = generateStations(rows, columns);
+            assignNeighbours();
+            assignDistantNeighbours();
+            calculateLocalFitness();
+            calculateFactoryFitness();
         }
+
         System.out.println("Thread is done: " + Thread.currentThread().getId());
 
     }
@@ -222,34 +224,36 @@ public class Factory implements Comparable, Runnable {
     /*
      * function checks to see if a specific index is out of bounds. Returns true if index is within array bounds
      */
-    public synchronized boolean validSpot(int i, int j) {
+    public boolean validSpot(int i, int j) {
         return (i >= 0 && i < rows && j >= 0 && j < columns);
     }
 
     /*
      * calculate fitness of each station by taking the inverse of the sum of differences between each station, and its
      * neighbours
-     *
-     * exclude calculating the edges and corners because their values are always skewed to be low
      */
-    public void calculateLocalFitness() {
+    public synchronized void calculateLocalFitness() {
         bestFitness = stations[1][1];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
+                int current = stations[i][j].getHeight();
 
                 int sum = 0;
-                for (Station s : stations[i][j].getNeighbours()) {
-                    sum += Math.abs(stations[i][j].getHeight() - s.getHeight());
+                ArrayList<Station>neighbours = stations[i][j].getNeighbours();
+                int size = neighbours.size();
+                for (int k = 0; k<size; k++) {
+                    sum += Math.abs(current - neighbours.get(k).getHeight());
                 }
-                for (Station s : stations[i][j].getDistantNeighbours()) {
-                    sum += (0.5*(Math.abs(stations[i][j].getHeight()-s.getHeight())));
+
+                ArrayList<Station> distantNeighbours = stations[i][j].getDistantNeighbours();
+                size = distantNeighbours.size();
+                for (int k = 0; k<size; k++) {
+                    sum += (0.5*(Math.abs(current - distantNeighbours.get(k).getHeight())));
                 }
                 stations[i][j].setLocalFitness(1000 / (double) sum);
                 if (stations[i][j].getLocalFitness() > bestFitness.getLocalFitness()) {
                     bestFitness = stations[i][j];
                 }
-
-
             }
         }
     }
@@ -294,7 +298,7 @@ public class Factory implements Comparable, Runnable {
      *  into the another (presumably new) factory
      */
 
-    public synchronized void insertSubsection(Station[][] subsection) {
+    public void insertSubsection(Station[][] subsection) {
         Station topLeftCorner = subsection[0][0];
         Station bottomRightCorner = subsection[subsection.length - 1][subsection[0].length - 1];
         for (int i = 0; i <= bottomRightCorner.getRow() - topLeftCorner.getRow(); i++) {
@@ -432,13 +436,6 @@ public class Factory implements Comparable, Runnable {
         this.totalSpots = totalSpots;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setFactoryId(int factoryId) {
-        this.id = factoryId;
-    }
 
     public ArrayList<Station> getListOfStations() {
         return listOfStations;
