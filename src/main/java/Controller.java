@@ -65,7 +65,7 @@ public class Controller {
 
                  for (int i = 0; i < 10000; i++) {
                      try {
-                         Thread.sleep(10);
+                         Thread.sleep(75);
                      } catch (InterruptedException e){
                          System.out.println("");
                      }
