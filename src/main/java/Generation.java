@@ -64,7 +64,8 @@ public class Generation {
         offSpringFactories[2][0] = bestFactories[2];
         offSpringFactories[3][0] = bestFactories[3];
 
-        CountDownLatch countDownLatch = new CountDownLatch((NUMROWS*NUMCOLUMNS)-NUMROWS);
+        //added one so i can countdown right before countdown awaits
+        CountDownLatch countDownLatch = new CountDownLatch(((NUMROWS*NUMCOLUMNS)-NUMROWS) +1);
 
 
         ArrayList<Factory> unProcessedFactories = new ArrayList<Factory>();
@@ -83,14 +84,16 @@ public class Generation {
                     Station [][] subsection = bestFactories[1].getFactorySection(points[0],points[1],points[2],points[3]);
                     Factory f = new Factory(subsection, bestFactories[0], 2, countDownLatch);
                     offSpringFactories[i][j] = f;
+                    executor.execute(f);
+
                     unProcessedFactories.add(f);
                 }
             }
-            for (Factory f :unProcessedFactories) {
-                executor.execute(f);
-                //executor.submit(f);
-            }
-            //countDownLatch.await(1500, TimeUnit.MILLISECONDS);
+//            for (Factory f :unProcessedFactories) {
+//                executor.execute(f);
+//                //executor.submit(f);
+//            }
+            countDownLatch.countDown();
             countDownLatch.await();
             executor.shutdown();
             //executor.awaitTermination(10000, TimeUnit.MILLISECONDS);

@@ -86,6 +86,12 @@ public class Factory implements Comparable, Runnable {
             mutate(this.mutationRate);
             assignNeighbours();
             assignDistantNeighbours();
+            try {
+                System.out.println(Thread.currentThread().getId() + " is sleeping...");
+                Thread.sleep(5);
+            }catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             calculateLocalFitness();
             calculateFactoryFitness();
             countDownLatch.countDown();
@@ -143,18 +149,27 @@ public class Factory implements Comparable, Runnable {
          */
 
     public void assignNeighbours() {
+
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                stations[i][j].setNeighbours(new ArrayList<Station>());
+                Station current = stations[i][j];
+                ArrayList<Station> neighbours = new ArrayList<Station>();
                 for (int a = -1; a < 2; a++) {
                     for (int b = -1; b < 2; b++) {
-                        if (validSpot(i + a, j + b) && !(b == 0 && a == 0)) {
-                            stations[i][j].addNeighbour(stations[i + a][j + b]);
+                        if (validSpot(i + a, j + b) && (b != 0 || a != 0)) {
+                            if (!neighbours.contains(stations[i + a][j + b])) {
+                                neighbours.add(stations[i+a][j+b]);
+                            }
                         }
                     }
                 }
+                current.setNeighbours(neighbours);
             }
         }
+    }
+
+    public boolean validIndex(int i, int j){
+        return (i>=0) && (i<rows) && (j>=0) && (j<columns);
     }
 
     public void assignDistantNeighbours() {
@@ -162,63 +177,127 @@ public class Factory implements Comparable, Runnable {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 Station current = stations[i][j];
-                current.setDistantNeighbours(new ArrayList<Station>());
-                int distanceToBottom = this.rows-1-current.getRow();
-                int distanceToSide = this.columns-1-current.getColumn();
-
+                if (stations[i][j] == null) {
+                    System.out.println("Station is null");
+                }
+                ArrayList<Station> distantNeighbours = new ArrayList<Station>();
                 //Yes I know this is a mess...
 
-                if (distanceToBottom > 1 && distanceToSide > 1) {
-                    current.getDistantNeighbours().add(stations[i + 2][j + 2]);
+                if (validIndex(i+2, j+2)) {
+                    distantNeighbours.add(stations[i + 2][j + 2]);
                 }
-                if (distanceToBottom > 1 && distanceToSide > 0) {
-                    current.getDistantNeighbours().add(stations[i + 2][j + 1]);
+                if (validIndex(i+2, j+1)) {
+                    distantNeighbours.add(stations[i + 2][j + 1]);
                 }
-                if (distanceToBottom >1 ) {
-                    current.getDistantNeighbours().add(stations[i + 2][j]);
+                if (validIndex(i+2, j)) {
+                    distantNeighbours.add(stations[i + 2][j]);
                 }
-                if (distanceToBottom > 1 && current.getColumn() >0) {
-                    current.getDistantNeighbours().add(stations[i + 2][j - 1]);
+                if (validIndex(i+2, j-1)) {
+                    distantNeighbours.add(stations[i + 2][j - 1]);
                 }
-                if (distanceToBottom>1 && current.getColumn() > 1) {
-                    current.getDistantNeighbours().add(stations[i + 2][j - 2]);
+                if (validIndex(i+2, j-2)) {
+                    distantNeighbours.add(stations[i + 2][j - 2]);
                 }
-                if (distanceToBottom > 0 && current.getColumn() > 1 ) {
-                    current.getDistantNeighbours().add(stations[i + 1][j - 2]);
+                if (validIndex(i+1, j-2)) {
+                    distantNeighbours.add(stations[i + 1][j - 2]);
                 }
-                if (distanceToBottom > 0 && distanceToSide > 1) {
-                    current.getDistantNeighbours().add(stations[i + 1][j + 2]);
+                if (validIndex(i+1, j+2)) {
+                    distantNeighbours.add(stations[i + 1][j + 2]);
                 }
-                if (current.getColumn() > 1) {
-                    current.getDistantNeighbours().add(stations[i][j - 2]);
+                if (validIndex(i, j-2)) {
+                    distantNeighbours.add(stations[i][j - 2]);
                 }
-                if (distanceToSide > 1) {
-                    current.getDistantNeighbours().add(stations[i][j + 2]);
+                if (validIndex(i, j+2)) {
+                    distantNeighbours.add(stations[i][j + 2]);
                 }
-                if (current.getRow() >0 && current.getColumn()>1) {
-                    current.getDistantNeighbours().add(stations[i - 1][j - 2]);
+                if (validIndex(i-1,j-2)) {
+                    distantNeighbours.add(stations[i - 1][j - 2]);
                 }
-                if (current.getRow()>0 && distanceToSide >1) {
-                    current.getDistantNeighbours().add(stations[i - 1][j + 2]);
+                if (validIndex(i-1, j+2)) {
+                    distantNeighbours.add(stations[i - 1][j + 2]);
                 }
-                if (current.getRow()>1 && current.getColumn() >1) {
-                    current.getDistantNeighbours().add(stations[i - 2][j - 2]);
+                if (validIndex(i-2, j-2)) {
+                    distantNeighbours.add(stations[i - 2][j - 2]);
                 }
-                if (current.getRow() >1 && current.getColumn() >0) {
-                    current.getDistantNeighbours().add(stations[i - 2][j - 1]);
+                if (validIndex(i-2,j-1)) {
+                    distantNeighbours.add(stations[i - 2][j - 1]);
                 }
-                if (current.getRow() > 1) {
-                    current.getDistantNeighbours().add(stations[i - 2][j]);
+                if (validIndex(i-2, j)) {
+                    distantNeighbours.add(stations[i - 2][j]);
                 }
-                if (current.getRow() >1 && distanceToSide>0) {
-                    current.getDistantNeighbours().add(stations[i - 2][j + 1]);
+                if (validIndex(i-2,j+1)) {
+                    distantNeighbours.add(stations[i - 2][j + 1]);
                 }
-                if (current.getRow()>1 && distanceToSide >1) {
-                    current.getDistantNeighbours().add(stations[i - 2][j + 2]);
+                if (validIndex(i-2, j+2)) {
+                    distantNeighbours.add(stations[i - 2][j + 2]);
                 }
+
+                current.setDistantNeighbours(distantNeighbours);
             }
         }
     }
+
+//    public ArrayList<Station> getDistantNeighboursForOneStation(int i, int j){
+//
+//                Station current = stations[i][j];
+//                current.setDistantNeighbours(new ArrayList<Station>());
+//                if (stations[i][j] == null) {
+//                    System.out.println("Station is null");
+//                }
+//                ArrayList<Station> distantNeighbours = new ArrayList<Station>();
+//                //Yes I know this is a mess...
+//
+//                if (validIndex(i+2, j+2)) {
+//                    current.getDistantNeighbours().add(stations[i + 2][j + 2]);
+//                }
+//                if (validIndex(i+2, j+1)) {
+//                    current.getDistantNeighbours().add(stations[i + 2][j + 1]);
+//                }
+//                if (validIndex(i+2, j)) {
+//                    current.getDistantNeighbours().add(stations[i + 2][j]);
+//                }
+//                if (validIndex(i+2, j-1)) {
+//                    current.getDistantNeighbours().add(stations[i + 2][j - 1]);
+//                }
+//                if (validIndex(i+2, j-2)) {
+//                    current.getDistantNeighbours().add(stations[i + 2][j - 2]);
+//                }
+//                if (validIndex(i+1, j-2)) {
+//                    current.getDistantNeighbours().add(stations[i + 1][j - 2]);
+//                }
+//                if (validIndex(i+1, j+2)) {
+//                    current.getDistantNeighbours().add(stations[i + 1][j + 2]);
+//                }
+//                if (validIndex(i, j-2)) {
+//                    current.getDistantNeighbours().add(stations[i][j - 2]);
+//                }
+//                if (validIndex(i, j+2)) {
+//                    current.getDistantNeighbours().add(stations[i][j + 2]);
+//                }
+//                if (validIndex(i-1,j-2)) {
+//                    current.getDistantNeighbours().add(stations[i - 1][j - 2]);
+//                }
+//                if (validIndex(i-1, j+2)) {
+//                    current.getDistantNeighbours().add(stations[i - 1][j + 2]);
+//                }
+//                if (validIndex(i-2, j-2)) {
+//                    current.getDistantNeighbours().add(stations[i - 2][j - 2]);
+//                }
+//                if (validIndex(i-2,j-1)) {
+//                    current.getDistantNeighbours().add(stations[i - 2][j - 1]);
+//                }
+//                if (validIndex(i-2, j)) {
+//                    current.getDistantNeighbours().add(stations[i - 2][j]);
+//                }
+//                if (validIndex(i-2,j+1)) {
+//                    current.getDistantNeighbours().add(stations[i - 2][j + 1]);
+//                }
+//                if (validIndex(i-2, j+2)) {
+//                    current.getDistantNeighbours().add(stations[i - 2][j + 2]);
+//                }
+//
+//
+//    }
 
 
     /*
@@ -232,23 +311,47 @@ public class Factory implements Comparable, Runnable {
      * calculate fitness of each station by taking the inverse of the sum of differences between each station, and its
      * neighbours
      */
-    public synchronized void calculateLocalFitness() {
+    public  void calculateLocalFitness() {
         bestFitness = stations[1][1];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                int current = stations[i][j].getHeight();
+                Station currentStation = stations[i][j];
+                int currentHeight = currentStation.getHeight();
 
                 int sum = 0;
-                ArrayList<Station>neighbours = stations[i][j].getNeighbours();
-                int size = neighbours.size();
-                for (int k = 0; k<size; k++) {
-                    sum += Math.abs(current - neighbours.get(k).getHeight());
+                ArrayList<Station>neighbours = currentStation.getNeighbours();
+                if (neighbours == null) {
+                    System.out.println("Neighbours is null!");
+                    assignNeighbours();
+                    neighbours = currentStation.getNeighbours();
                 }
 
-                ArrayList<Station> distantNeighbours = stations[i][j].getDistantNeighbours();
-                size = distantNeighbours.size();
+                int size = neighbours.size();
                 for (int k = 0; k<size; k++) {
-                    sum += (0.5*(Math.abs(current - distantNeighbours.get(k).getHeight())));
+                    if (neighbours.get(k) == null) {
+                        System.out.println("neighbour is null!");
+                    } else {
+                        sum += Math.abs(currentHeight - neighbours.get(k).getHeight());
+                    }
+                }
+
+                ArrayList<Station> distantNeighbours = currentStation.getDistantNeighbours();
+                if (distantNeighbours == null) {
+                    System.out.println("Distant neighbours is empty!");
+                    //stations[i][j].setDistantNeighbours(assignDistantNeighbours());
+                }
+                int s2 = 0;
+                try {
+                    s2 = distantNeighbours.size();
+                } catch (NullPointerException e){
+                    e.printStackTrace();
+
+                }
+                for (int k = 0; k<s2; k++) {
+                    if (distantNeighbours.get(k) == null) {
+                        System.out.println("Distant neighbour null");
+                    }
+                    sum += (0.5*(Math.abs(currentHeight - distantNeighbours.get(k).getHeight())));
                 }
                 stations[i][j].setLocalFitness(1000 / (double) sum);
                 if (stations[i][j].getLocalFitness() > bestFitness.getLocalFitness()) {
