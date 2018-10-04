@@ -9,8 +9,13 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 
 import javax.swing.*;
@@ -152,15 +157,38 @@ public class Controller {
 
 
 
-    public void populateGridPane(Factory f) {
+    public synchronized void populateGridPane(Factory f) {
         for (int i = 0; i<10; i++) {
             for (int j=0; j<10; j++) {
                 int height = f.getStations()[i][j].getHeight();
                 Button temp = new Button(Integer.toString(height));
+
+                if (height >0 && height <=20) {
+                    temp.setStyle("-fx-background-color: #FFFFFF;");
+                } else if (height >20 && height <=40) {
+                    temp.setStyle("-fx-background-color: #E0E0E0;");
+                } else if (height > 40 && height <=60) {
+                    temp.setStyle("-fx-background-color: #C8C8C8;");
+                } else if (height >60 && height <=80 ) {
+                    temp.setStyle("-fx-background-color:#A8A8A8;");
+                } else if (height > 80 && height <=100) {
+                    temp.setStyle("-fx-background-color:#787878;");
+                } else if (height >100 && height <=120) {
+                    temp.setStyle("-fx-background-color:#606060;");
+                } else if (height>120 && height <=140) {
+                    temp.setStyle("-fx-background-color:#404040;");
+                } else if (height > 140 && height <=160) {
+                    temp.setStyle("-fx-background-color:#282828;");
+                } else if (height >160) {
+                    temp.setStyle("-fx-background-color:#000000;");
+                }
+                //temp.setPrefSize(20,20);
                 FactoryGrid.add(temp, i,j);
             }
         }
     }
+
+
 
 
 }
