@@ -1,4 +1,8 @@
+import javafx.animation.Animation;
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -6,14 +10,14 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -23,9 +27,12 @@ public class Main extends Application {
 
     public static void main (String [] args)  {
 
-        Thread algo = new Thread(new GeneticAlgorithm());
-        //algo.start();
-
+//        BlockingQueue bestFitness = new ArrayBlockingQueue(1);
+//        BlockingQueue currentGeneration = new ArrayBlockingQueue(1);
+//
+//        //Thread algo = new Thread(new GeneticAlgorithm());
+//        //algo.start();
+//
 
         launch(args);
         System.out.println("Done");
@@ -33,7 +40,9 @@ public class Main extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws IOException{
+
+
         Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("GeneticAlgorithm.fxml"));
         primaryStage.setTitle("CSC375hw01");
         primaryStage.setScene(new Scene(root, 800, 600));

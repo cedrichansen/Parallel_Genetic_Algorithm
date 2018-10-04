@@ -25,7 +25,7 @@
             <Font size="16.0" />
          </font>
       </Label>
-      <Label id="currentGen" layoutX="660.0" layoutY="313.0" text="0">
+      <Label id="currentGen" fx:id="currentGenerationLabel" layoutX="660.0" layoutY="313.0" text="0">
          <font>
             <Font size="16.0" />
          </font>
@@ -64,6 +64,6 @@
             <Font size="16.0" />
          </font>
       </Label>
-      <Label layoutX="270.0" layoutY="537.0" text="0" />
+      <Label fx:id="bestFactoryFitnessLabel" layoutX="270.0" layoutY="537.0" text="0" />
    </children>
 </Pane>
