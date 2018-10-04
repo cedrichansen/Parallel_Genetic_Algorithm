@@ -1,4 +1,5 @@
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 
@@ -9,6 +10,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+
+import javax.swing.*;
 
 public class Controller {
 
@@ -23,42 +26,95 @@ public class Controller {
 
     public void startAlgorithm(ActionEvent e) throws IOException, InterruptedException {
          ExecutorService executor = Executors.newFixedThreadPool(2);
-         GeneticAlgorithm a = new GeneticAlgorithm(currentGen, bestFactory);
 
-        Thread gui = new Thread(
+         Runnable geneticAlgorithm = new Runnable() {
+             @Override
+             public void run() {
+                 Generation a = new Generation();
+                 Factory best = new Factory(10, 10);
+                 best.setFitness(0.0f);
+                 //a.getBestFactories()[0].printLocalFitnesses();
 
-                new Runnable() {
+                 for (int i = 0; i < 10000; i++) {
+                     try {
+                         Thread.sleep(100);
+                     } catch (InterruptedException e){
+                         System.out.println("");
+                     }
 
+
+                     if (i == 0) {
+                         best = a.getBestFactories()[0];
+                     } else if (a.getBestFactories()[0].getFactoryFitness() > best.getFactoryFitness()) {
+                         best = a.getBestFactories()[0];
+                         //paint new best factory here
+
+                     }
+
+                     System.out.println("\nGeneration " + i + "\nBestFitnesses:");
+                     for (int j = 0; j < a.getBestFactories().length; j++) {
+                         System.out.println(j + ": " + a.getBestFactories()[j].getFactoryFitness());
+                     }
+
+
+                     System.out.println("\nAverage Fitness: " + a.averageFitness() + "\n");
+                     System.out.println("\n\nGeneration View\n\n");
+                     a.printGeneration();
+                     System.out.println("\n\n\n--------------------------");
+
+                     try {
+                         //currentGen.clear();
+                         currentGen.put(i);
+                         bestFactory.put(best);
+                     } catch (InterruptedException e) {
+                         System.out.println("interrupted");
+                     } catch (Exception e){
+                         System.out.println("Queue full...");
+                     }
+
+                     if (a.getBestFactories()[0].getFactoryFitness() > 185) {
+                         a.getBestFactories()[0].printFactoryHeight();
+                         //update gui here
+                         break;
+                     }
+
+                     a = a.generateOffSpring();
+                 }
+             }
+         };
+
+        Runnable gui = new Runnable() {
             public void run() {
-
-                while (true){
+                do {
                     try {
+                        final int gen = currentGen.take();
+                        System.out.println("current Gen: "+ gen);
+                        final Factory f = bestFactory.take();
+                        if (f!=null) {
+                            System.out.println("best factory fitness: " + f.getFactoryFitness());
+                        }
 
-                        int currentGenInt = currentGen.take();
-                        currentGenerationLabel.setText(Integer.toString(currentGenInt));
-                        System.out.println("Just took from current gen queue!" + currentGenInt);
-                    } catch (InterruptedException ex) {
 
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                currentGenerationLabel.setText(Integer.toString(gen));
+                                bestFactoryFitnessLabel.setText(Double.toString(f.getFactoryFitness()));
+                            }
+                        });
+
+
+                    } catch (InterruptedException ie) {
                     }
-                    try {
-                        Factory best = a.bestFactory.take();
-                        System.out.println("Just took from best factory queue!  " + best.getFactoryFitness());
-                        bestFactoryFitnessLabel.setText(Double.toString(best.getFactoryFitness()));
-                    } catch (InterruptedException ex) {
-
-                    }
-
-                }
+                } while (true);
+                //executor.shutdownNow();
             }
-        });
+        };
 
-        executor.execute(a);
+        executor.execute(geneticAlgorithm);
         executor.execute(gui);
 
-
-
-
-
     }
+
 
 }
