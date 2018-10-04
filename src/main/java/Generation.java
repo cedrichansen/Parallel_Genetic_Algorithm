@@ -124,10 +124,10 @@ public class Generation {
     */
     public Factory[] findBestFactories() {
 
-        Factory [] bestFactories = new Factory[8];
+        Factory [] bestFactories = new Factory[4];
         Collections.sort(factoryList);
 
-        for (int i = 0; i<8; i++){
+        for (int i = 0; i<bestFactories.length; i++){
             bestFactories[i] = factoryList.get(i);
         }
 
