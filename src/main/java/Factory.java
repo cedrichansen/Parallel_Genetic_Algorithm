@@ -282,7 +282,8 @@ public class Factory implements Comparable, Runnable {
                 try {
                     s2 = distantNeighbours.size();
                 } catch (NullPointerException e){
-                    e.printStackTrace();
+                    //e.printStackTrace();
+                    System.out.println("not calculating neighbours");
 
                 }
                 for (int k = 0; k<s2; k++) {
