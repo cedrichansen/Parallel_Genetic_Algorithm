@@ -237,68 +237,6 @@ public class Factory implements Comparable, Runnable {
         }
     }
 
-//    public ArrayList<Station> getDistantNeighboursForOneStation(int i, int j){
-//
-//                Station current = stations[i][j];
-//                current.setDistantNeighbours(new ArrayList<Station>());
-//                if (stations[i][j] == null) {
-//                    System.out.println("Station is null");
-//                }
-//                ArrayList<Station> distantNeighbours = new ArrayList<Station>();
-//                //Yes I know this is a mess...
-//
-//                if (validIndex(i+2, j+2)) {
-//                    current.getDistantNeighbours().add(stations[i + 2][j + 2]);
-//                }
-//                if (validIndex(i+2, j+1)) {
-//                    current.getDistantNeighbours().add(stations[i + 2][j + 1]);
-//                }
-//                if (validIndex(i+2, j)) {
-//                    current.getDistantNeighbours().add(stations[i + 2][j]);
-//                }
-//                if (validIndex(i+2, j-1)) {
-//                    current.getDistantNeighbours().add(stations[i + 2][j - 1]);
-//                }
-//                if (validIndex(i+2, j-2)) {
-//                    current.getDistantNeighbours().add(stations[i + 2][j - 2]);
-//                }
-//                if (validIndex(i+1, j-2)) {
-//                    current.getDistantNeighbours().add(stations[i + 1][j - 2]);
-//                }
-//                if (validIndex(i+1, j+2)) {
-//                    current.getDistantNeighbours().add(stations[i + 1][j + 2]);
-//                }
-//                if (validIndex(i, j-2)) {
-//                    current.getDistantNeighbours().add(stations[i][j - 2]);
-//                }
-//                if (validIndex(i, j+2)) {
-//                    current.getDistantNeighbours().add(stations[i][j + 2]);
-//                }
-//                if (validIndex(i-1,j-2)) {
-//                    current.getDistantNeighbours().add(stations[i - 1][j - 2]);
-//                }
-//                if (validIndex(i-1, j+2)) {
-//                    current.getDistantNeighbours().add(stations[i - 1][j + 2]);
-//                }
-//                if (validIndex(i-2, j-2)) {
-//                    current.getDistantNeighbours().add(stations[i - 2][j - 2]);
-//                }
-//                if (validIndex(i-2,j-1)) {
-//                    current.getDistantNeighbours().add(stations[i - 2][j - 1]);
-//                }
-//                if (validIndex(i-2, j)) {
-//                    current.getDistantNeighbours().add(stations[i - 2][j]);
-//                }
-//                if (validIndex(i-2,j+1)) {
-//                    current.getDistantNeighbours().add(stations[i - 2][j + 1]);
-//                }
-//                if (validIndex(i-2, j+2)) {
-//                    current.getDistantNeighbours().add(stations[i - 2][j + 2]);
-//                }
-//
-//
-//    }
-
 
     /*
      * function checks to see if a specific index is out of bounds. Returns true if index is within array bounds
