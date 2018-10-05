@@ -33,14 +33,6 @@ public class Factory implements Comparable, Runnable {
         random = new Random();
         stations = new Station[rows][columns];
         originalFactory=true;
-        //stations = generateStations(rows, columns);
-
-        //comment all this out
-
-//        assignNeighbours();
-//        assignDistantNeighbours();
-//        calculateLocalFitness();
-//        calculateFactoryFitness();
 
     }
 
@@ -60,15 +52,6 @@ public class Factory implements Comparable, Runnable {
         stations = secondParent.stations;
         this.mutationRate = mutationRate;
         countDownLatch = cdl;
-
-        //comment all thus out
-//        insertSubsection(subsection);
-//        mutate(mutationRate);
-//
-//        assignNeighbours();
-//        assignDistantNeighbours();
-//        calculateLocalFitness();
-//        calculateFactoryFitness();
 
     }
 
@@ -401,16 +384,6 @@ public class Factory implements Comparable, Runnable {
                 System.out.println("----------------------------------------------------------");
             }
         }
-    }
-
-    public boolean betterThan(Factory f) {
-        if (f == null) {
-            return true;
-        }
-        if (this.factoryFitness - f.getFactoryFitness() > 0) {
-            return true;
-        }
-        return false;
     }
 
     public String toString() {

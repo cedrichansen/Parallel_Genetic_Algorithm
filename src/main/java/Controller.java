@@ -1,24 +1,15 @@
 
-import com.sun.prism.paint.Color;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
-
-import javax.swing.*;
 
 public class Controller {
 
@@ -61,13 +52,12 @@ public class Controller {
                  Generation a = new Generation();
                  Factory best = new Factory(10, 10);
                  best.setFitness(0.0f);
-                 //a.getBestFactories()[0].printLocalFitnesses();
 
                  for (int i = 0; i < 10000; i++) {
                      try {
-                         Thread.sleep(75);
+                         Thread.sleep(300);
                      } catch (InterruptedException e){
-                         System.out.println("");
+                         e.printStackTrace();
                      }
 
 
@@ -81,20 +71,12 @@ public class Controller {
                      Factory f3 = a.getBestFactories()[2];
                      Factory f4 = a.getBestFactories()[3];
 
-                     System.out.println("\nGeneration " + i + "\nBestFitnesses:");
-                     for (int j = 0; j < a.getBestFactories().length; j++) {
-                         System.out.println(j + ": " + a.getBestFactories()[j].getFactoryFitness());
-                     }
-
-
-
                      System.out.println("\nAverage Fitness: " + a.averageFitness() + "\n");
                      System.out.println("\n\nGeneration View\n\n");
                      a.printGeneration();
                      System.out.println("\n\n\n--------------------------");
 
                      try {
-                         //currentGen.clear();
                          currentGen.put(i);
                          bestFactory.put(best);
                          secondBestFactory.put(f2);
@@ -106,7 +88,7 @@ public class Controller {
                          System.out.println("Queue full...");
                      }
 
-                     if (a.getBestFactories()[0].getFactoryFitness() > 200) {
+                     if (a.getBestFactories()[0].getFactoryFitness() > 190) {
                          a.getBestFactories()[0].printFactoryHeight();
                          break;
                      }
@@ -121,7 +103,6 @@ public class Controller {
                 do {
                     try {
                         final int gen = currentGen.take();
-                        System.out.println("current Gen: "+ gen);
                         final Factory f = bestFactory.take();
                         final Factory f2 = secondBestFactory.take();
                         final Factory f3 = thirdBestFactory.take();
@@ -142,9 +123,9 @@ public class Controller {
 
 
                     } catch (InterruptedException ie) {
+                        ie.printStackTrace();
                     }
                 } while (true);
-                //executor.shutdownNow();
             }
         };
 
@@ -182,7 +163,6 @@ public class Controller {
                 } else if (height >160) {
                     temp.setStyle("-fx-background-color:#000000;");
                 }
-                //temp.setPrefSize(20,20);
                 FactoryGrid.add(temp, i,j);
             }
         }

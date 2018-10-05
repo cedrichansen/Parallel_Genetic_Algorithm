@@ -89,14 +89,10 @@ public class Generation {
                     unProcessedFactories.add(f);
                 }
             }
-//            for (Factory f :unProcessedFactories) {
-//                executor.execute(f);
-//                //executor.submit(f);
-//            }
+
             countDownLatch.countDown();
             countDownLatch.await();
             executor.shutdown();
-            //executor.awaitTermination(10000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -191,10 +187,6 @@ public class Generation {
             System.out.println(rowString);
         }
     }
-
-
-
-
 
 
     public Factory[] getBestFactories(){
